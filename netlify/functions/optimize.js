@@ -8,18 +8,16 @@ exports.handler = async (event, context) => {
 
     try {
         const { promptMessage } = JSON.parse(event.body);
-        
-        // قراءة مفتاح جوجل السري بأمان
         const API_KEY = process.env.GEMINI_API_KEY;
 
         if (!API_KEY) {
             return {
                 statusCode: 500,
-                body: JSON.stringify({ error: "خطأ: لم يتم ضبط مفتاح Gemini السري في إعدادات الخادم بعد." })
+                body: JSON.stringify({ error: "خطأ: لم يتم ضبط مفتاح Gemini في إعدادات الخادم بعد." })
             };
         }
 
-        // رابط الاتصال الرسمي بنظام ذكاء جوجل الاصطناعي Gemini 1.5 Flash
+        // الرابط المحدث للاستدعاء المستقر لنموذج جينيريت كونتنت
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
         const response = await fetch(url, {
@@ -36,11 +34,10 @@ exports.handler = async (event, context) => {
 
         const data = await response.json();
 
-        // التأكد من أن جوجل أرسل الرد بنجاح
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
+        // فحص رد جوجل وعرض النص المستلم للواجهة
+        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
             const aiText = data.candidates[0].content.parts[0].text;
             
-            // صياغة الرد بنفس الشكل المتوقع في الواجهة ليعمل الكود دون تعديل في app.js
             const formattedResponse = {
                 choices: [{
                     message: {
@@ -58,7 +55,7 @@ exports.handler = async (event, context) => {
             return {
                 statusCode: 400,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ error: data.error?.message || "فشل ذكاء Gemini في الاستجابة." })
+                body: JSON.stringify({ error: data.error?.message || "فشل نموذج Gemini في معالجة النص، تأكد من إعدادات الحساب." })
             };
         }
 
