@@ -24,35 +24,27 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
     نسق الإجابة بنقاط واضحة وبأسلوب احترافي مشوق ومناسب للشركات.`;
 
     try {
-        const API_KEY = "AIzaSyDk010-wpEC-oSPUmngZmSpADaB45pSkzU"; 
-        
-        // الرابط الرسمي المستقر والمؤكد لنموذج Gemini 1.5 Flash
-        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-
-        const response = await fetch(url, {
+        // نعود للاستدعاء عبر السيرفر لتخطي حظر المتصفح
+        const response = await fetch('/.netlify/functions/optimize', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: promptMessage }]
-                }]
-            })
+            body: JSON.stringify({ promptMessage })
         });
 
         const data = await response.json();
 
-        if (response.ok && data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
-            const aiResult = data.candidates[0].content.parts[0].text;
+        if (response.ok && data.choices && data.choices[0].message) {
+            const aiResult = data.choices[0].message.content;
             resultBox.innerHTML = `<div style="white-space: pre-line; color: #fff; line-height: 1.6; text-align: right;">${aiResult}</div>`;
         } else {
-            const errMsg = data.error?.message || 'حدث خطأ في استجابة جوجل.';
-            resultBox.innerHTML = `<p style="color: #ff4a4a; font-weight: bold;">خطأ: ${errMsg}</p>`;
+            const errorText = data.error || 'حدث خطأ غير معروف.';
+            resultBox.innerHTML = `<p style="color: #ff4a4a; font-weight: bold;">${errorText}</p>`;
         }
 
     } catch (error) {
-        resultBox.innerHTML = `<p style="color: #ff4a4a; font-weight: bold;">فشل الاتصال بالذكاء الاصطناعي: ${error.message}</p>`;
+        resultBox.innerHTML = `<p style="color: #ff4a4a; font-weight: bold;">فشل الاتصال بالخادم الداخلي: ${error.message}</p>`;
     } finally {
         loading.classList.add('hidden');
     }
