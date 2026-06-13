@@ -17,8 +17,8 @@ exports.handler = async (event, context) => {
             };
         }
 
-        // الرابط المحدث للاستدعاء المستقر لنموذج جينيريت كونتنت
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        // استخدام الإصدار المستقر v1 بدلاً من v1beta لضمان التوافق التام
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
         const response = await fetch(url, {
             method: 'POST',
@@ -34,7 +34,6 @@ exports.handler = async (event, context) => {
 
         const data = await response.json();
 
-        // فحص رد جوجل وعرض النص المستلم للواجهة
         if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts[0].text) {
             const aiText = data.candidates[0].content.parts[0].text;
             
@@ -55,7 +54,7 @@ exports.handler = async (event, context) => {
             return {
                 statusCode: 400,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ error: data.error?.message || "فشل نموذج Gemini في معالجة النص، تأكد من إعدادات الحساب." })
+                body: JSON.stringify({ error: data.error?.message || "فشل نموذج Gemini في معالجة النص." })
             };
         }
 
