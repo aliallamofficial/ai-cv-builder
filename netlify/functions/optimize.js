@@ -13,12 +13,12 @@ exports.handler = async (event, context) => {
         if (!API_KEY) {
             return {
                 statusCode: 500,
-                body: JSON.stringify({ error: "خطأ: لم يتم ضبط مفتاح Gemini في إعدادات الخادم بعد." })
+                body: JSON.stringify({ error: "خطأ: لم يتم ضبط مفتاح Gemini الجديد في إعدادات الخادم بعد." })
             };
         }
 
-        // استخدام النموذج الأساسي المستقر والمتاح مجاناً لكافة الحسابات تلقائياً
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`;
+        // الرابط الدقيق والمخصص لتشغيل نموذج الفلاش مع المفاتيح الحديثة
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
 
         const response = await fetch(url, {
             method: 'POST',
