@@ -17,8 +17,8 @@ exports.handler = async (event, context) => {
             };
         }
 
-        // الرابط الصحيح والنهائي المعتمد لنموذج جيميناي فلاش
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        // استخدام نموذج gemini-1.5-pro المستقر لحل مشكلة عدم العثور على النموذج نهائياً
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${API_KEY}`;
 
         const response = await fetch(url, {
             method: 'POST',
