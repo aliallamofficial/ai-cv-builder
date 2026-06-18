@@ -39,7 +39,26 @@
                     <input type="text" id="skills" placeholder="مثال: تواصل، حل مشكلات، اكسل، تفاوض">
                 </div>
 
+                <div class="form-group">
+                    <label for="langSelect">لغة صياغة السيرة الذاتية:</label>
+                    <select id="langSelect" style="width: 100%; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                        <option value="ar">العربية (Arabic)</option>
+                        <option value="en">الإنجليزية (English)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="templateSelect">اختر قالب التنسيق المرئي:</label>
+                    <select id="templateSelect" style="width: 100%; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+                        <option value="modern">حديث (أزرق داكن احترافي وبوردر جانبي)</option>
+                        <option value="classic">كلاسيكي أكاديمي (أبيض وأسود رسمي وعريق)</option>
+                        <option value="elegant">أنيق وجذاب (خلفية دافئة مع خط علوي ذهبي)</option>
+                    </select>
+                </div>
+
                 <button id="optimizeBtn">حسّن سيرتي الذاتية الآن 🚀</button>
+                
+                <button id="downloadPdfBtn" class="hidden" style="width: 100%; padding: 12px; border-radius: 5px; margin-top: 15px; background-color: #10b981; color: white; border: none; font-weight: bold; cursor: pointer;">تحميل بصيغة PDF / طباعة فورية 🖨️</button>
             </section>
 
             <section class="output-section">
