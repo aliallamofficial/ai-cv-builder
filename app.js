@@ -1,22 +1,4 @@
-// 1. ميزة حفظ المسودات تلقائياً (تعبئة البيانات المخزنة فور فتح التطبيق)
-document.addEventListener('DOMContentLoaded', () => {
-    if(localStorage.getItem('draft_fullName')) document.getElementById('fullName').value = localStorage.getItem('draft_fullName');
-    if(localStorage.getItem('draft_jobTitle')) document.getElementById('jobTitle').value = localStorage.getItem('draft_jobTitle');
-    if(localStorage.getItem('draft_experience')) document.getElementById('experience').value = localStorage.getItem('draft_experience');
-    if(localStorage.getItem('draft_skills')) document.getElementById('skills').value = localStorage.getItem('draft_skills');
-});
-
-// ميزة حفظ البيانات في الخلفية أثناء قيام المستخدم بالكتابة لحمايتها من الضياع
-['fullName', 'jobTitle', 'experience', 'skills'].forEach(id => {
-    const element = document.getElementById(id);
-    if (element) {
-        element.addEventListener('input', () => {
-            localStorage.setItem(`draft_${id}`, element.value.trim());
-        });
-    }
-});
-
-// دالة التحقق من حد الاستخدام اليومي المخصص (5 مرات في اليوم)
+// دالة التحقق الصارمة من حد الاستخدام اليومي المخصص (5 مرات في اليوم)
 function handleCVCreation() {
     const maxAllowedPerDay = 5; 
     const today = new Date().toDateString(); 
@@ -141,7 +123,7 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
             throw new Error("استجابة فارغة");
         }
     } catch (error) {
-        // الحل الاحتياطي الدقيق والمنسق في حال انقطاع الشبكة
+        // الحل الاحتياطي في حال انقطاع الشبكة
         let fallbackHTML = "";
         if (selectedLang === 'ar') {
             fallbackHTML = `
@@ -183,4 +165,16 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
     }
 });
 
-//
+// 3. ميزة تحميل السيرة الذاتية وطباعتها بصيغة PDF
+document.getElementById('downloadPdfBtn').addEventListener('click', () => {
+    const printContent = document.getElementById('cvTemplateArea').innerHTML;
+    const originalContent = document.body.innerHTML;
+
+    // استبدال الشاشة مؤقتاً لعرض محتوى السيرة الذاتية فقط لطباعة نظيفة
+    document.body.innerHTML = `<div style="padding:20px;">${printContent}</div>`;
+    window.print();
+    
+    // إرجاع محتوى التطبيق وإعادة تنشيط الأحداث
+    document.body.innerHTML = originalContent;
+    window.location.reload(); 
+});
