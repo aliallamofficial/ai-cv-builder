@@ -146,24 +146,24 @@ document.addEventListener('click', () => {
     document.getElementById('downloadOptions').classList.add('hidden');
 });
 
-// 📄 خيار تحميل بصيغة PDF عبر استدعاء نظام Median للموبايل مباشرة
+// 📄 خيار تحميل بصيغة PDF الشامل مع ميزة النسخ التلقائي كحل احتياطي للموبايل
 document.getElementById('downloadPdfBtn').addEventListener('click', () => {
     const cvElement = document.getElementById('cvTemplateArea');
     const cvContent = cvElement.innerHTML;
+    const cvText = cvElement.innerText;
     const isEn = cvElement.style.textAlign === 'left';
     const direction = isEn ? 'ltr' : 'rtl';
 
     const fullHtml = `<html dir="${direction}"><head><title>السيرة_الذاتية</title><style>body{font-family:sans-serif; padding:20px; color:#000; background:#fff;}</style></head><body>${cvContent}</body></html>`;
     const pdfUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(fullHtml);
 
-    // إذا كان يعمل داخل تطبيق Median، نستخدم الجسر المخصص لتنزيل الملفات بأمان وثبات
+    // محاولة النسخ الفوري للحافظة كأمان للمستخدم
+    navigator.clipboard.writeText(cvText).catch(() => {});
+
     if (typeof median !== 'undefined' && median.download) {
-        median.download.downloadFile({
-            url: pdfUrl,
-            filename: 'السيرة_الذاتية.html'
-        });
+        median.download.downloadFile({ url: pdfUrl, filename: 'السيرة_الذاتية.html' });
+        alert("تم بدء التحميل! وتم أيضاً نسخ نص السيرة الذاتية لحافظة جهازك تلقائياً.");
     } else {
-        // حل احتياطي للمتصفحات العادية والتابلت
         const iframe = document.createElement('iframe');
         iframe.style.position = 'fixed'; iframe.style.width = '0'; iframe.style.height = '0'; iframe.style.border = '0';
         document.body.appendChild(iframe);
@@ -171,22 +171,23 @@ document.getElementById('downloadPdfBtn').addEventListener('click', () => {
         doc.open(); doc.write(fullHtml); doc.close();
         iframe.contentWindow.focus(); iframe.contentWindow.print();
         setTimeout(() => { document.body.removeChild(iframe); }, 1000);
+        alert("تم نسخ نص السيرة الذاتية لحافظة جهازك تلقائياً!");
     }
 });
 
-// 📄 خيار تحميل السيرة الذاتية بصيغة Word عبر نظام Median للموبايل مباشرة
+// 📄 خيار تحميل السيرة الذاتية بصيغة Word الشامل مع ميزة النسخ التلقائي كحل احتياطي
 document.getElementById('downloadWordBtn').addEventListener('click', () => {
     const cvContent = document.getElementById('cvTemplateArea').innerText;
     const wordUrl = 'data:application/msword;charset=utf-8,\ufeff' + encodeURIComponent(cvContent);
 
-    // إذا كان يعمل داخل تطبيق Median، نستخدم الجسر المخصص لتنزيل ملفات الـ Word
+    // محاولة نسخ النص فوراً
+    navigator.clipboard.writeText(cvContent).then(() => {
+        alert("رائع! تم نسخ نص السيرة الذاتية بالكامل تلقائياً إلى حافظة هاتفك. يمكنك الآن لصقها (.paste) في أي ملف أو تطبيق للتحكم الكامل بها.");
+    }).catch(() => {});
+
     if (typeof median !== 'undefined' && median.download) {
-        median.download.downloadFile({
-            url: wordUrl,
-            filename: 'السيرة_الذاتية.doc'
-        });
+        median.download.downloadFile({ url: wordUrl, filename: 'السيرة_الذاتية.doc' });
     } else {
-        // حل احتياطي للمتصفحات العادية والتابلت
         const a = document.createElement('a');
         a.href = wordUrl;
         a.download = 'السيرة_الذاتية.doc';
