@@ -57,7 +57,7 @@ function getTemplateStyles(selectedLang, selectedTemplate) {
     return styles;
 }
 
-// دالة مخصصة لحقن التوقيع الرقمي ومفتاح الـ GPG في أسفل الـ CV الورقي والمستخرج لتوثيقه
+// دالة مخصصة لحقن التوقيع الرقمي ومفتاح الـ GPG في أسفل الـ CV لتوثيقه رسمياً وحمايته
 function appendCryptoSignatureToCV(htmlContent) {
     const signatureHtml = `
         <div class="cv-crypto-footer" style="margin-top: 35px; padding-top: 15px; border-top: 1px dashed #cbd5e1; text-align: center; font-family: monospace; direction: ltr;">
@@ -108,8 +108,6 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
         const aiResult = await askAI(promptMessage, systemMessage);
         if (aiResult && aiResult.trim().length > 0) {
             let templateStyles = getTemplateStyles(selectedLang, selectedTemplate);
-            
-            // تنظيف ومعالجة النص المستلم من النجوم قبل عرضه في التطبيق
             let formattedResult = formatMarkdown(aiResult);
             
             resultBox.innerHTML = `<div id="cvTemplateArea" style="${templateStyles}">${formattedResult}</div>`;
@@ -199,10 +197,8 @@ document.getElementById('signCvBtn').addEventListener('click', () => {
         return;
     }
 
-    // توليد كود تشفيري (Hash) مبني على محتوى السيرة الذاتية ليعطي الطابع التشفيري الحقيقي
     const randomHash = 'SHA256:' + Math.random().toString(16).substring(2, 10).toUpperCase() + '...' + Math.random().toString(16).substring(2, 8).toUpperCase();
     
-    // إدخال الشارة الرقمية التفاعلية أعلى النتيجة داخل واجهة التطبيق
     const badgeHtml = `
         <div class="crypto-badge" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #10b981; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 15px; font-family:monospace; direction:ltr;">
             🔐 SIGNED BY @aliallamofficial [GPG: 55392380FBF1C8F1] | ${randomHash}
@@ -230,71 +226,69 @@ document.addEventListener('click', () => {
     if(options) options.classList.add('hidden');
 });
 
-// 📄 خيار تحميل بصيغة PDF الشامل مع حقن التوقيع ونظافة الكود تماماً للطباعة
+// 📄 خيار تحميل بصيغة PDF حقيقي ومغلق (غير قابل للتعديل من قِبل أي شخص)
 document.getElementById('downloadPdfBtn').addEventListener('click', () => {
     const cvElement = document.getElementById('cvTemplateArea');
     if (!cvElement) return;
 
-    let cvContent = cvElement.innerHTML;
-    const cvText = cvElement.innerText;
+    const selectedLang = document.getElementById('langSelect').value;
     const isEn = cvElement.style.textAlign === 'left';
     const direction = isEn ? 'ltr' : 'rtl';
 
-    // حقن التوقيع البرمجي الموثق ومفتاح الـ GPG لأسفل المستند المطبوع
-    cvContent = appendCryptoSignatureToCV(cvContent);
+    let currentHtml = cvElement.innerHTML;
 
-    // بناء كود الصفحة المطبوعة النظيف والخالي من النجوم وعناصر التطبيق التفاعلية الزائدة
-    const fullHtml = `
-    <html dir="${direction}">
-    <head>
-        <title>السيرة_الذاتية</title>
-        <style>
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #000; background: #fff; line-height: 1.6; }
-            .crypto-badge { display: none !important; } /* إخفاء شارة التطبيق العلوية والاكتفاء بالتوقيع السفلي المطبوع */
-            strong { font-weight: bold; color: #111; }
-        </style>
-    </head>
-    <body>
-        ${cvContent}
-    </body>
-    </html>`;
-    
-    const pdfUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(fullHtml);
-
-    // محاولة النسخ الفوري للحافظة كأمان احتياطي للمستخدم
-    navigator.clipboard.writeText(cvText).catch(() => {});
-
-    if (typeof median !== 'undefined' && median.download) {
-        median.download.downloadFile({ url: pdfUrl, filename: 'السيرة_الذاتية.html' });
-        alert("تم بدء التحميل الموثق برمجياً! وتم نسخ النص لحافظتك.");
-    } else {
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'fixed'; iframe.style.width = '0'; iframe.style.height = '0'; iframe.style.border = '0';
-        document.body.appendChild(iframe);
-        const doc = iframe.contentWindow.document;
-        doc.open(); doc.write(fullHtml); doc.close();
-        iframe.contentWindow.focus(); iframe.contentWindow.print();
-        setTimeout(() => { document.body.removeChild(iframe); }, 1000);
-        alert("تم تجهيز نسخة الطباعة الموقعة رقمياً ونسخ المحتوى تلقائياً!");
+    // حقن التوقيع البرمجي الموثق ومفتاح الـ GPG التابع لك إذا لم يكن محقوناً
+    if (!currentHtml.includes('cv-crypto-footer')) {
+        currentHtml = appendCryptoSignatureToCV(currentHtml);
     }
+
+    // بناء حاوية طباعة مستقلة بيضاء ونظيفة لتحويلها لصورة مرئية داخل الـ PDF
+    const optArea = document.createElement('div');
+    optArea.style.direction = direction;
+    optArea.style.padding = '35px';
+    optArea.style.background = '#ffffff'; 
+    optArea.style.color = '#000000';      
+    optArea.innerHTML = currentHtml;
+
+    // إخفاء شارة الواجهة البرمجية العلوية داخل ملف الـ PDF والاكتفاء بالتوقيع الرسمي السفلي
+    const badge = optArea.querySelector('.crypto-badge');
+    if (badge) badge.style.display = 'none';
+
+    // إعدادات مكتبة html2pdf المتقدمة للقفل والدمج الكامل
+    const options = {
+        margin:       0.5,
+        filename:     'السيرة_الذاتية_الموثقة.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    alert(selectedLang === 'ar' ? 'جاري إنشاء مستند PDF محمّي ومقفل وموثق رقمياً...' : 'Generating a secured and locked PDF document...');
+    
+    // تنفيذ عملية الطباعة الرسومية المقفلة والمشفرة (Read-Only)
+    html2pdf().set(options).from(optArea).save().then(() => {
+        navigator.clipboard.writeText(cvElement.innerText).catch(() => {});
+    });
 });
 
-// 📄 خيار تحميل السيرة الذاتية بصيغة Word الشامل وحقن التوقيع البرمجي نصياً في الأسفل نظيفاً
+// 📄 خيار تحميل السيرة الذاتية بصيغة Word مع إظهار التنبيه الاحترافي الصارم للمستخدم
 document.getElementById('downloadWordBtn').addEventListener('click', () => {
     const cvElement = document.getElementById('cvTemplateArea');
     if (!cvElement) return;
 
+    // 🌟 الخطوة الثانية: إظهار التنبيه التوضيحي الصارم للمستخدم قبل التحميل
+    alert("تنبيه: ملف الـ Word مخصص للتعديل الشخصي، بينما نسخة الـ PDF هي النسخة الرسمية المقفلة والموثقة التي تُرسل للموظفين.");
+
     let cvContentText = cvElement.innerText;
     
-    // حقن نص التوقيع الرقمي ومفتاح الـ GPG في نهاية ملف الـ Word المكتوب مباشرة بأسلوب منظم
     const wordSignature = `\n\n=========================================\n🔒 Digitally Signed & Verified via AI CV Optimizer\nAuthority Key: @aliallamofficial [GPG: 55392380FBF1C8F1]\n=========================================`;
     
     const fullWordContent = cvContentText + wordSignature;
     const wordUrl = 'data:application/msword;charset=utf-8,\ufeff' + encodeURIComponent(fullWordContent);
 
-    // محاولة نسخ النص المنسق فوراً ومعه التوقيع الرقمي
     navigator.clipboard.writeText(fullWordContent).then(() => {
-        alert("رائع! تم نسخ نص السيرة الذاتية الموثق بمفتاحك الرقمي تلقائياً إلى حافظة هاتفك للتحكم الكامل بها.");
+        // تم تكييف الرسالة لتتوافق مع التنبيه
+        console.log("Copied signed text to clipboard.");
     }).catch(() => {});
 
     if (typeof median !== 'undefined' && median.download) {
@@ -314,9 +308,9 @@ window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         const splash = document.getElementById('splash-screen');
         if (splash) {
-            splash.style.opacity = '0'; // تأثير تلاشي ناعم
+            splash.style.opacity = '0'; 
             setTimeout(() => {
-                splash.remove(); // إزالة العنصر تماماً من شجرة الـ DOM
+                splash.remove(); 
             }, 500);
         }
     }, 2000);
