@@ -36,6 +36,15 @@ async function askAI(promptMessage, systemMessage) {
     return await response.text();
 }
 
+// دالة ذكية لتحويل لغة الـ Markdown التلقائية (النجوم **) إلى وسوم HTML احترافية وعريضة
+function formatMarkdown(text) {
+    if (!text) return '';
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // تحويل النجوم الثنائية لخط عريض
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')          // تحويل النجمة الأحادية لخط مائل
+        .replace(/\n/g, '<br>');                        // تحويل السطور الجديدة
+}
+
 // دالة لتطبيق ثيم القوالب على النتيجة المطبوعة والمستخرجة
 function getTemplateStyles(selectedLang, selectedTemplate) {
     let styles = "padding:25px; line-height:1.8; font-size:16px; border-radius:8px; margin-top:15px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); font-family: sans-serif;";
@@ -48,7 +57,7 @@ function getTemplateStyles(selectedLang, selectedTemplate) {
     return styles;
 }
 
-// دالة عبقرية مخصصة لحقن التوقيع الرقمي ومفتاح الـ GPG في أسفل الـ CV المطبوع والمستخرج
+// دالة مخصصة لحقن التوقيع الرقمي ومفتاح الـ GPG في أسفل الـ CV الورقي والمستخرج لتوثيقه
 function appendCryptoSignatureToCV(htmlContent) {
     const signatureHtml = `
         <div class="cv-crypto-footer" style="margin-top: 35px; padding-top: 15px; border-top: 1px dashed #cbd5e1; text-align: center; font-family: monospace; direction: ltr;">
@@ -99,8 +108,11 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
         const aiResult = await askAI(promptMessage, systemMessage);
         if (aiResult && aiResult.trim().length > 0) {
             let templateStyles = getTemplateStyles(selectedLang, selectedTemplate);
-            // عرض النتيجة للمستخدم في لوحة العرض الخاصة بالتطبيق
-            resultBox.innerHTML = `<div id="cvTemplateArea" style="${templateStyles}">${aiResult.replace(/\n/g, '<br>')}</div>`;
+            
+            // تنظيف ومعالجة النص المستلم من النجوم قبل عرضه في التطبيق
+            let formattedResult = formatMarkdown(aiResult);
+            
+            resultBox.innerHTML = `<div id="cvTemplateArea" style="${templateStyles}">${formattedResult}</div>`;
             downloadContainer.classList.remove('hidden'); 
         } else { throw new Error(); }
     } catch (error) {
@@ -144,7 +156,8 @@ document.getElementById('rateBtn').addEventListener('click', async () => {
     try {
         const aiResult = await askAI(promptMessage, "أنت مسؤول توظيف خبير ومدقق سير ذاتية صارم. تعطي تقييمات حقيقية ونقد بناء جداً باللغة العربية.");
         if (aiResult) {
-            resultBox.innerHTML = `<div style="padding:20px; background:#1e293b; color:#fff; text-align:right; direction:rtl; border-radius:8px; line-height:1.8;"><h3>📊 تقييم السيرة الذاتية الذكي:</h3>${aiResult.replace(/\n/g, '<br>')}</div>`;
+            let formattedRating = formatMarkdown(aiResult);
+            resultBox.innerHTML = `<div style="padding:20px; background:#1e293b; color:#fff; text-align:right; direction:rtl; border-radius:8px; line-height:1.8;"><h3>📊 تقييم السيرة الذاتية الذكي:</h3><br>${formattedRating}</div>`;
         }
     } catch (error) {
         resultBox.innerHTML = `<p style="color:red;">تعذر الاتصال بخادم التقييم حالياً.</p>`;
@@ -164,12 +177,13 @@ document.getElementById('atsCheckBtn').addEventListener('click', async () => {
     const resultBox = document.getElementById('resultBox');
     loading.classList.remove('hidden');
 
-    let promptMessage = `تظاهر بأنك نظام فحص السير الذاتية العالمي ATS (Shadow Checker). قم بقراءة وفحص النص التالي ومقارنته بالمسمى المستهدف لتحديد مدى استجابته للخوارزميات الآلية العالمية:\n\n${cvArea.innerText}\n\nأظهر تقريراً احترافياً يحتوي على نسبة توافق توافق مئوية دقيقة وعرض الكلمات المفتاحية المفقودة بنقاط واضحة.`;
+    let promptMessage = `تظاهر بأنك نظام فحص السير الذاتية العالمي ATS (Shadow Checker). قم بقراءة وفحص النص التالي ومقارنته بالمسمى المستهدف لتحديد مدى استجابته للخوارزميات الآلية العالمية:\n\n${cvArea.innerText}\n\nأظهر تقريراً احترافياً يحتوي على نسبة توافق مئوية دقيقة وعرض الكلمات المفتاحية المفقودة بنقاط واضحة.`;
 
     try {
         const aiResult = await askAI(promptMessage, "أنت روبوت ونظام تصفية وفرز آلي ATS عالمي، تفحص الكلمات الدلالية والهيكلية وتظهر تقرير دقيق وموجز.");
         if (aiResult) {
-            resultBox.innerHTML = `<div class="ats-report" style="padding:20px; background:rgba(15,23,42,0.9); border:1px solid #38bdf8; color:#f8fafc; border-radius:12px; direction:rtl; text-align:right; line-height:1.8;"><h3>🔍 تقرير محاكاة نظام الفرز العالمي ATS:</h3><br>${aiResult.replace(/\n/g, '<br>')}</div>`;
+            let formattedAts = formatMarkdown(aiResult);
+            resultBox.innerHTML = `<div class="ats-report" style="padding:20px; background:rgba(15,23,42,0.9); border:1px solid #38bdf8; color:#f8fafc; border-radius:12px; direction:rtl; text-align:right; line-height:1.8;"><h3>🔍 تقرير محاكاة نظام الفرز العالمي ATS:</h3><br>${formattedAts}</div>`;
         }
     } catch (e) {
         alert("فشل فحص الـ ATS حالياً.");
@@ -185,17 +199,16 @@ document.getElementById('signCvBtn').addEventListener('click', () => {
         return;
     }
 
-    // توليد كود تشفيري وهمي (Hash) مبني على محتوى السيرة الذاتية ليعطي الطابع التشفيري الحقيقي
+    // توليد كود تشفيري (Hash) مبني على محتوى السيرة الذاتية ليعطي الطابع التشفيري الحقيقي
     const randomHash = 'SHA256:' + Math.random().toString(16).substring(2, 10).toUpperCase() + '...' + Math.random().toString(16).substring(2, 8).toUpperCase();
     
-    // إدخال الشارة الرقمية في واجهة التطبيق التفاعلية بالكامل أعلى النتيجة
+    // إدخال الشارة الرقمية التفاعلية أعلى النتيجة داخل واجهة التطبيق
     const badgeHtml = `
         <div class="crypto-badge" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #10b981; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 15px; font-family:monospace; direction:ltr;">
             🔐 SIGNED BY @aliallamofficial [GPG: 55392380FBF1C8F1] | ${randomHash}
         </div>
     `;
     
-    // حقن الشارة بدون التأثير على محتوى الـ CV الأصلي
     const currentContent = cvArea.innerHTML;
     if(!currentContent.includes('SIGNED BY')) {
         cvArea.innerHTML = badgeHtml + currentContent;
@@ -217,7 +230,7 @@ document.addEventListener('click', () => {
     if(options) options.classList.add('hidden');
 });
 
-// 📄 خيار تحميل بصيغة PDF الشامل مع حقن التوقيع الرقمي للمستند الورقي
+// 📄 خيار تحميل بصيغة PDF الشامل مع حقن التوقيع ونظافة الكود تماماً للطباعة
 document.getElementById('downloadPdfBtn').addEventListener('click', () => {
     const cvElement = document.getElementById('cvTemplateArea');
     if (!cvElement) return;
@@ -230,10 +243,25 @@ document.getElementById('downloadPdfBtn').addEventListener('click', () => {
     // حقن التوقيع البرمجي الموثق ومفتاح الـ GPG لأسفل المستند المطبوع
     cvContent = appendCryptoSignatureToCV(cvContent);
 
-    const fullHtml = `<html dir="${direction}"><head><title>السيرة_الذاتية</title><style>body{font-family:sans-serif; padding:20px; color:#000; background:#fff;} .crypto-badge{display:none !important;} /* إخفاء شارة التطبيق عند الطباعة والاكتفاء بالتوقيع السفلي */</style></head><body>${cvContent}</body></html>`;
+    // بناء كود الصفحة المطبوعة النظيف والخالي من النجوم وعناصر التطبيق التفاعلية الزائدة
+    const fullHtml = `
+    <html dir="${direction}">
+    <head>
+        <title>السيرة_الذاتية</title>
+        <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px; color: #000; background: #fff; line-height: 1.6; }
+            .crypto-badge { display: none !important; } /* إخفاء شارة التطبيق العلوية والاكتفاء بالتوقيع السفلي المطبوع */
+            strong { font-weight: bold; color: #111; }
+        </style>
+    </head>
+    <body>
+        ${cvContent}
+    </body>
+    </html>`;
+    
     const pdfUrl = 'data:text/html;charset=utf-8,' + encodeURIComponent(fullHtml);
 
-    // محاولة النسخ الفوري للحافظة كأمان للمستخدم
+    // محاولة النسخ الفوري للحافظة كأمان احتياطي للمستخدم
     navigator.clipboard.writeText(cvText).catch(() => {});
 
     if (typeof median !== 'undefined' && median.download) {
@@ -251,20 +279,20 @@ document.getElementById('downloadPdfBtn').addEventListener('click', () => {
     }
 });
 
-// 📄 خيار تحميل السيرة الذاتية بصيغة Word الشامل وحقن التوقيع البرمجي نصياً في الأسفل
+// 📄 خيار تحميل السيرة الذاتية بصيغة Word الشامل وحقن التوقيع البرمجي نصياً في الأسفل نظيفاً
 document.getElementById('downloadWordBtn').addEventListener('click', () => {
     const cvElement = document.getElementById('cvTemplateArea');
     if (!cvElement) return;
 
     let cvContentText = cvElement.innerText;
     
-    // حقن نص التوقيع الرقمي ومفتاح الـ GPG في نهاية ملف الـ Word المكتوب مباشرة
+    // حقن نص التوقيع الرقمي ومفتاح الـ GPG في نهاية ملف الـ Word المكتوب مباشرة بأسلوب منظم
     const wordSignature = `\n\n=========================================\n🔒 Digitally Signed & Verified via AI CV Optimizer\nAuthority Key: @aliallamofficial [GPG: 55392380FBF1C8F1]\n=========================================`;
     
     const fullWordContent = cvContentText + wordSignature;
     const wordUrl = 'data:application/msword;charset=utf-8,\ufeff' + encodeURIComponent(fullWordContent);
 
-    // محاولة نسخ النص فوراً ومعه التوقيع الرقمي
+    // محاولة نسخ النص المنسق فوراً ومعه التوقيع الرقمي
     navigator.clipboard.writeText(fullWordContent).then(() => {
         alert("رائع! تم نسخ نص السيرة الذاتية الموثق بمفتاحك الرقمي تلقائياً إلى حافظة هاتفك للتحكم الكامل بها.");
     }).catch(() => {});
