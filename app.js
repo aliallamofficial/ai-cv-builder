@@ -74,6 +74,7 @@ function appendCryptoSignatureToCV(htmlContent) {
 
 // حدث الضغط على زر تحسين السيرة الذاتية
 document.getElementById('optimizeBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('optimizeBtn');
     const fullName = document.getElementById('fullName').value.trim();
     const jobTitle = document.getElementById('jobTitle').value.trim();
     const experience = document.getElementById('experience').value.trim();
@@ -92,6 +93,8 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
     const resultBox = document.getElementById('resultBox');
     const downloadContainer = document.getElementById('downloadContainer');
 
+    // حماية: تعطيل الزر لمنع تكرار الطلب وظهور خطأ الـ Queue
+    btn.disabled = true;
     loading.classList.remove('hidden');
     downloadContainer.classList.add('hidden');
     resultBox.innerHTML = '';
@@ -114,12 +117,16 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
             downloadContainer.classList.remove('hidden'); 
         } else { throw new Error(); }
     } catch (error) {
-        resultBox.innerHTML = `<p style="color:red;">حدث خطأ أثناء الصياغة. يرجى التحقق من الاتصال بالشبكة.</p>`;
-    } finally { loading.classList.add('hidden'); }
+        resultBox.innerHTML = `<p style="color:red;">الخادم مشغول حالياً أو حدث خطأ أثناء الصياغة. يرجى المحاولة مجدداً بعد ثوانٍ قليلة.</p>`;
+    } finally { 
+        loading.classList.add('hidden'); 
+        btn.disabled = false; // إعادة تفعيل الزر بعد الانتهاء
+    }
 });
 
 // 📊 ميزة تقييم السيرة الذاتية (Resume Scoring)
 document.getElementById('rateBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('rateBtn');
     const fullName = document.getElementById('fullName').value.trim();
     const jobTitle = document.getElementById('jobTitle').value.trim();
     const experience = document.getElementById('experience').value.trim();
@@ -135,6 +142,7 @@ document.getElementById('rateBtn').addEventListener('click', async () => {
     const resultBox = document.getElementById('resultBox');
     const downloadContainer = document.getElementById('downloadContainer');
 
+    btn.disabled = true;
     loading.classList.remove('hidden');
     downloadContainer.classList.add('hidden');
     resultBox.innerHTML = '';
@@ -158,12 +166,16 @@ document.getElementById('rateBtn').addEventListener('click', async () => {
             resultBox.innerHTML = `<div style="padding:20px; background:#1e293b; color:#fff; text-align:right; direction:rtl; border-radius:8px; line-height:1.8;"><h3>📊 تقييم السيرة الذاتية الذكي:</h3><br>${formattedRating}</div>`;
         }
     } catch (error) {
-        resultBox.innerHTML = `<p style="color:red;">تعذر الاتصال بخادم التقييم حالياً.</p>`;
-    } finally { loading.classList.add('hidden'); }
+        resultBox.innerHTML = `<p style="color:red;">تعذر الاتصال بخادم التقييم حالياً بسبب الضغط. يرجى المحاولة مجدداً.</p>`;
+    } finally { 
+        loading.classList.add('hidden'); 
+        btn.disabled = false;
+    }
 });
 
 // 🔍 تشغيل ميزة فحص التوافق العالمي ATS Shadow Checker
 document.getElementById('atsCheckBtn').addEventListener('click', async () => {
+    const btn = document.getElementById('atsCheckBtn');
     const cvArea = document.getElementById('cvTemplateArea');
     const selectedLang = document.getElementById('langSelect').value;
     if (!cvArea) {
@@ -173,6 +185,8 @@ document.getElementById('atsCheckBtn').addEventListener('click', async () => {
 
     const loading = document.getElementById('loading');
     const resultBox = document.getElementById('resultBox');
+    
+    btn.disabled = true;
     loading.classList.remove('hidden');
 
     let promptMessage = `تظاهر بأنك نظام فحص السير الذاتية العالمي ATS (Shadow Checker). قم بقراءة وفحص النص التالي ومقارنته بالمسمى المستهدف لتحديد مدى استجابته للخوارزميات الآلية العالمية:\n\n${cvArea.innerText}\n\nأظهر تقريراً احترافياً يحتوي على نسبة توافق مئوية دقيقة وعرض الكلمات المفتاحية المفقودة بنقاط واضحة.`;
@@ -184,8 +198,11 @@ document.getElementById('atsCheckBtn').addEventListener('click', async () => {
             resultBox.innerHTML = `<div class="ats-report" style="padding:20px; background:rgba(15,23,42,0.9); border:1px solid #38bdf8; color:#f8fafc; border-radius:12px; direction:rtl; text-align:right; line-height:1.8;"><h3>🔍 تقرير محاكاة نظام الفرز العالمي ATS:</h3><br>${formattedAts}</div>`;
         }
     } catch (e) {
-        alert("فشل فحص الـ ATS حالياً.");
-    } finally { loading.classList.add('hidden'); }
+        alert("فشل فحص الـ ATS حالياً بسبب ضغط الخادم.");
+    } finally { 
+        loading.classList.add('hidden'); 
+        btn.disabled = false;
+    }
 });
 
 // 🔐 تشغيل ميزة التوقيع والتشفير الرقمي GPG الرقمي للمستند
