@@ -40,7 +40,7 @@ async function askAI(promptMessage, systemMessage) {
 function formatMarkdown(text) {
     if (!text) return '';
     return text
-        .replace(/\*\*(.*?)\*\"/g, '<strong>$1</strong>') // تحويل النجوم الثنائية لخط عريض
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // تحويل النجوم الثنائية لخط عريض
         .replace(/\*(.*?)\*/g, '<em>$1</em>')          // تحويل النجمة الأحادية لخط مائل
         .replace(/\n/g, '<br>');                        // تحويل السطور الجديدة
 }
@@ -243,67 +243,67 @@ document.addEventListener('click', () => {
     if(options) options.classList.add('hidden');
 });
 
-// 📄 خيار تحميل بصيغة PDF حقيقي ومغلق (حل نهائي ومباشر لمنع الصفحة البيضاء)
+// 📄 خيار تحميل بصيغة PDF (الحل النهائي الجذري باستخدام نافذة طباعة المتصفح النظيفة)
 document.getElementById('downloadPdfBtn').addEventListener('click', () => {
     const cvElement = document.getElementById('cvTemplateArea');
     
-    // منع التحميل إذا كانت لوحة النتيجة فارغة تماماً
     if (!cvElement || cvElement.innerText.trim() === "" || cvElement.innerText.includes("ستظهر سيرتك الذاتية")) {
         alert(document.getElementById('langSelect').value === 'ar' ? 'يرجى تحسين السيرة الذاتية أولاً وتوليد النص قبل محاولة تحميلها!' : 'Please optimize your CV first before downloading!');
         return;
     }
 
-    const selectedLang = document.getElementById('langSelect').value;
+    let currentHtml = cvElement.innerHTML;
+
+    // إلحاق التوقيع الرسمي بالأسفل
+    if (!currentHtml.includes('cv-crypto-footer')) {
+        currentHtml = appendCryptoSignatureToCV(currentHtml);
+    }
+
+    // فتح نافذة طباعة فرعية نظيفة ومستقلة تماماً لمنع ظهور باقي أزرار الموقع في المستند
+    const printWindow = window.open('', '_blank', 'width=800,height=900');
     
-    // حفظ الستايلات الأصلية لصندوق النتيجة لإعادتها بعد الحفظ
-    const originalStyle = cvElement.getAttribute('style');
+    const isEn = cvElement.style.textAlign === 'left';
+    const direction = isEn ? 'ltr' : 'rtl';
 
-    // إجبار الصندوق الظاهر فوراً على ألوان الطباعة (خلفية بيضاء ونصوص سوداء صريحة) ليراها المحرك
-    cvElement.style.backgroundColor = '#ffffff';
-    cvElement.style.color = '#000000';
-    cvElement.style.boxShadow = 'none';
+    // حقن الكود وتنسيقات الـ CSS للطباعة لضمان خلفية بيضاء ونصوص سوداء حادة ومثالية للـ ATS
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="${direction}">
+        <head>
+            <title>السيرة الذاتية الموثقة</title>
+            <style>
+                body { 
+                    font-family: Arial, sans-serif; 
+                    padding: 40px; 
+                    background: #ffffff; 
+                    color: #000000; 
+                    line-height: 1.8;
+                    font-size: 15px;
+                }
+                strong { font-weight: bold; color: #000000; }
+                /* إخفاء الشارة العلوية أثناء طباعة الملف */
+                .crypto-badge { display: none !important; }
+                @media print {
+                    body { padding: 0; }
+                    @page { margin: 2cm; }
+                }
+            </style>
+        </head>
+        <body>
+            <div>${currentHtml}</div>
+            <script>
+                // تشغيل أمر حفظ كـ PDF تلقائياً فور التحميل ثم إغلاق النافذة المنبثقة
+                window.onload = function() {
+                    window.print();
+                    setTimeout(function() { window.close(); }, 500);
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
 
-    // تحويل الألوان لكافة العناصر الداخلية بالداخل (عناوين، فقرات، إلخ)
-    const innerElements = cvElement.querySelectorAll('*');
-    innerElements.forEach(el => {
-        el.style.color = '#000000';
-        el.style.backgroundColor = 'transparent';
-    });
-
-    // إخفاء الشارات غير المرغوبة أثناء الطباعة
-    const badge = cvElement.querySelector('.crypto-badge');
-    if (badge) badge.style.display = 'none';
-
-    // إعدادات مكتبة html2pdf الدقيقة والمتوافقة عالمياً
-    const options = {
-        margin:       0.5,
-        filename:     'السيرة_الذاتية_الموثقة.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { 
-            scale: 2, 
-            useCORS: true, 
-            logging: false,
-            letterRendering: true
-        },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-
-    alert(selectedLang === 'ar' ? 'جاري التقاط وحفظ مستند PDF... انتظر لحظة.' : 'Capturing and generating PDF... please wait.');
-
-    // تشغيل التقاط العنصر المباشر مع مهلة صغيرة جداً لضمان ثبات الألوان
-    setTimeout(() => {
-        html2pdf().set(options).from(cvElement).save().then(() => {
-            // إعادة الستايل الأصلي للموقع فوراً بعد اكتمال التحميل
-            cvElement.setAttribute('style', originalStyle);
-            if (badge) badge.style.display = 'inline-flex';
-            navigator.clipboard.writeText(cvElement.innerText).catch(() => {});
-        }).catch((err) => {
-            // إعادة الستايل في حال حدوث أي خطأ مفاجئ
-            cvElement.setAttribute('style', originalStyle);
-            if (badge) badge.style.display = 'inline-flex';
-            alert("حدث خطأ أثناء المعالجة، يرجى المحاولة مرة أخرى.");
-        });
-    }, 300);
+    printWindow.document.close();
+    navigator.clipboard.writeText(cvElement.innerText).catch(() => {});
 });
 
 // 📄 خيار تحميل السيرة الذاتية بصيغة Word مع إظهار التنبيه الاحترافي الصارم للمستخدم
