@@ -121,6 +121,14 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
     downloadContainer.classList.add('hidden');
     resultBox.innerHTML = '';
 
+    // تحديث نصيحة اليوم تلقائياً بناءً على مسمى وظيفة المستخدم عبر الـ AI عند الضغط على الزر
+    if (navigator.onLine && jobTitle) {
+        askAI(`أعطني نصيحة توظيف احترافية وموجزة جداً (سطر واحد فقط) لشخص يريد التقديم على وظيفة: ${jobTitle}`, "أنت خبير توظيف تعطي نصيحة مباشرة بدون مقدمات.")
+        .then(aiTip => {
+            if(aiTip) document.getElementById('liveTipText').innerText = aiTip;
+        }).catch(()=>{});
+    }
+
     if (!navigator.onLine) {
         alert(selectedLang === 'ar' ? "أنت تعمل الآن بدون إنترنت (Offline Mode)." : "You are offline.");
         let offlineResult = `<h2>${fullName}</h2><h3>${jobTitle}</h3><hr><br>${experience || ''}<br>${skills || ''}`;
@@ -346,8 +354,23 @@ document.getElementById('downloadWordBtn').addEventListener('click', () => {
     a.click();
 });
 
-// إخفاء الواجهة الترحيبية المتحركة بعد ثانيتين تماماً
+// مصفوفة النصائح الجاهزة لتغيير النصيحة تلقائياً محلياً (عند عدم الاتصال)
+const cvTips = [
+    "تجنب وضع صورتك الشخصية إذا كنت تقدم على شركات عالمية تعتمد نظام ATS تماماً.",
+    "احرص على ألا تتجاوز سيرتك الذاتية صفحة واحدة إذا كانت خبرتك أقل من 5 سنوات.",
+    "استخدم أرقاماً ونسباً مئوية حقيقية لإثبات إنجازاتك (مثال: زيادة المبيعات بنسبة 20%).",
+    "البريد الإلكتروني المهني يجب أن يحتوي على اسمك الحقيقي، ابتعد تماماً عن الأسماء المستعارة.",
+    "الكلمات المفتاحية المأخوذة من إعلان الوظيفة نفسه هي مفتاحك السحري لتخطي فلترة الـ ATS."
+];
+
+// إخفاء الواجهة الترحيبية المتحركة بعد ثانيتين تماماً + تغيير النصيحة العشوائية
 window.addEventListener('DOMContentLoaded', () => {
+    // تشغيل النصائح المحلية العشوائية عند فتح الصفحة
+    const tipElement = document.getElementById('liveTipText');
+    if (tipElement) {
+        tipElement.innerText = cvTips[Math.floor(Math.random() * cvTips.length)];
+    }
+
     setTimeout(() => {
         const splash = document.getElementById('splash-screen');
         if (splash) {
