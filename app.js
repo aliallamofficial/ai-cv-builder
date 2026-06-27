@@ -42,8 +42,8 @@ async function askAI(promptMessage, systemMessage) {
         body: JSON.stringify({ 
             messages: [{ role: "user", content: promptMessage }],
             system: systemMessage
-        }
-    )});
+        })
+    });
     return await response.text();
 }
 
@@ -170,7 +170,7 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
         } else { throw new Error(); }
     } catch (error) {
         resultBox.innerHTML = `<p style="color:red;">حدث خطأ أثناء الصياغة. يرجى المحاولة مجدداً.</p>`;
-    } finaly { 
+    } finally { 
         loading.classList.add('hidden'); 
         btn.disabled = false;
     }
@@ -214,7 +214,7 @@ document.getElementById('coverLetterBtn').addEventListener('click', async () => 
         }
     } catch (e) {
         alert("فشل خادم توليد الرسائل حالياً.");
-    } finaly { 
+    } finally { 
         loading.classList.add('hidden'); 
         btn.disabled = false;
     }
@@ -250,7 +250,7 @@ document.getElementById('rateBtn').addEventListener('click', async () => {
         }
     } catch (error) {
         resultBox.innerHTML = `<p style="color:red;">تعذر الاتصال بخادم التقييم.</p>`;
-    } finaly { 
+    } finally { 
         loading.classList.add('hidden'); 
         btn.disabled = false;
     }
@@ -278,7 +278,7 @@ document.getElementById('atsCheckBtn').addEventListener('click', async () => {
         }
     } catch (e) {
         alert("فشل فحص الـ ATS حالياً.");
-    } finaly { 
+    } finally { 
         loading.classList.add('hidden'); 
         btn.disabled = false;
     }
