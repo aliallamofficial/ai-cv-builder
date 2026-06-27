@@ -310,7 +310,7 @@ document.addEventListener('click', () => {
     if(options) options.classList.add('hidden');
 });
 
-// 📄 خيار تحميل بصيغة PDF
+// 📄 خيار تحميل بصيغة PDF (تم تصحيح وسم الإغلاق لعدم حدوث تعليق)
 document.getElementById('downloadPdfBtn').addEventListener('click', () => {
     const cvElement = document.getElementById('cvTemplateArea');
     if (!cvElement || cvElement.innerText.trim() === "" || cvElement.innerText.includes("ستظهر سيرتك الذاتية")) return;
@@ -340,7 +340,7 @@ document.getElementById('downloadPdfBtn').addEventListener('click', () => {
             <div>${currentHtml}</div>
             <script>
                 window.onload = function() { window.print(); setTimeout(function() { window.close(); }, 500); };
-            <\/script>
+            </script>
         </body>
         </html>
     `);
