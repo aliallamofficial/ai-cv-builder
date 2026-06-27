@@ -665,3 +665,131 @@ footer {
     text-decoration: underline !important;
     opacity: 0.85;
 }
+
+/* ==========================================
+    🌟 التحديث الجديد: أنماط الجولة التعريفية المتقدمة (App Tour Layout)
+   ========================================== */
+.tour-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000; /* أعلى من كل العناصر */
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+.tour-card {
+    background: #1e293b;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    width: 100%;
+    max-width: 460px;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    direction: rtl;
+    text-align: center;
+    position: relative;
+    animation: scaleUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tour-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tour-step-badge {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    padding: 4px 12px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.tour-skip-link {
+    background: none;
+    border: none;
+    color: #64748b;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+    width: auto;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+.tour-skip-link:hover {
+    color: #ef4444;
+    background: none;
+}
+
+.tour-main-icon {
+    font-size: 3.5rem;
+    margin: 10px 0;
+    animation: bounceEffect 2s infinite;
+}
+
+.tour-main-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 8px;
+}
+
+.tour-main-desc {
+    color: #94a3b8;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.tour-footer {
+    margin-top: 10px;
+}
+
+.tour-next-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
+    color: white;
+    font-weight: bold;
+    border-radius: 12px;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+}
+
+.tour-next-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+    background: linear-gradient(135deg, #0ea5e9 0%, #1d4ed8 100%);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bounceEffect {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
