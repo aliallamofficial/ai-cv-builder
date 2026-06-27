@@ -42,8 +42,8 @@ async function askAI(promptMessage, systemMessage) {
         body: JSON.stringify({ 
             messages: [{ role: "user", content: promptMessage }],
             system: systemMessage
-        })
-    });
+        }
+    )});
     return await response.text();
 }
 
@@ -170,7 +170,7 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
         } else { throw new Error(); }
     } catch (error) {
         resultBox.innerHTML = `<p style="color:red;">حدث خطأ أثناء الصياغة. يرجى المحاولة مجدداً.</p>`;
-    } finally { 
+    } finaly { 
         loading.classList.add('hidden'); 
         btn.disabled = false;
     }
@@ -214,7 +214,7 @@ document.getElementById('coverLetterBtn').addEventListener('click', async () => 
         }
     } catch (e) {
         alert("فشل خادم توليد الرسائل حالياً.");
-    } finally { 
+    } finaly { 
         loading.classList.add('hidden'); 
         btn.disabled = false;
     }
@@ -250,7 +250,7 @@ document.getElementById('rateBtn').addEventListener('click', async () => {
         }
     } catch (error) {
         resultBox.innerHTML = `<p style="color:red;">تعذر الاتصال بخادم التقييم.</p>`;
-    } finally { 
+    } finaly { 
         loading.classList.add('hidden'); 
         btn.disabled = false;
     }
@@ -278,7 +278,7 @@ document.getElementById('atsCheckBtn').addEventListener('click', async () => {
         }
     } catch (e) {
         alert("فشل فحص الـ ATS حالياً.");
-    } finally { 
+    } finaly { 
         loading.classList.add('hidden'); 
         btn.disabled = false;
     }
@@ -424,19 +424,19 @@ window.addEventListener('DOMContentLoaded', () => {
     if (openSettingsBtn && settingsPageModal) {
         openSettingsBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (topLeftMenu) topLeftMenu.classList.add('hidden'); // إخفاء القائمة المنسدلة الصغيرة أولاً
-            settingsPageModal.classList.remove('hidden'); // فتح نافذة الإعدادات الكبيرة
+            if (topLeftMenu) topLeftMenu.classList.add('hidden'); 
+            settingsPageModal.classList.remove('hidden'); 
         });
     }
 
     if (closeSettingsBtn && settingsPageModal) {
         closeSettingsBtn.addEventListener('click', () => {
-            settingsPageModal.classList.add('hidden'); // إغلاق عند الضغط على X
+            settingsPageModal.classList.add('hidden'); 
         });
 
         settingsPageModal.addEventListener('click', (e) => {
             if (e.target === settingsPageModal) {
-                settingsPageModal.classList.add('hidden'); // إغلاق عند الضغط على الخلفية الشفافة
+                settingsPageModal.classList.add('hidden'); 
             }
         });
     }
@@ -445,8 +445,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const privacyPolicyBtn = document.getElementById('privacyPolicyBtn') || document.getElementById('privacyPolicyLink');
     if (privacyPolicyBtn) {
         privacyPolicyBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // منع السلوك الافتراضي
-            window.open('https://wp.me/Phj9fM-E', '_blank'); // فتح الرابط في نافذة جديدة
+            e.preventDefault(); 
+            window.open('https://wp.me/Phj9fM-E', '_blank'); 
         });
     }
 
@@ -474,12 +474,81 @@ window.addEventListener('DOMContentLoaded', () => {
     // 4. تشغيل الفحص الآلي الذكي للتحديثات المرفوعة على السيرفر
     checkAutomatedUpdates();
 
-    // 5. إخفاء الواجهة الترحيبية المتحركة
+    // 5. ميزة الجولة التعريفية الاحترافية والذكية (Onboarding Tour)
+    const tourSteps = [
+        {
+            icon: "🚀",
+            title: "مرحباً بك في مستقبلك المهني!",
+            desc: "دعنا نأخذك في جولة سريعة مدتها دقيقة واحدة للتعرف على كيفية صناعة سيرة ذاتية لا تقهر بالذكاء الاصطناعي.",
+            btnText: "ابدأ الرحلة الآن ←"
+        },
+        {
+            icon: "📝",
+            title: "عبّئ بياناتك الأساسية بدقة",
+            desc: "قم بملء حقول اسمك، المسمى المستهدف، وخبراتك السابقة. خوارزميتنا ستقرأها وتصيغها بأسلوب احترافي جذاب.",
+            btnText: "الخطوة التالية ⚡"
+        },
+        {
+            icon: "🔍",
+            title: "تجاوز فحص أنظمة الـ ATS",
+            desc: "استخدم زر 'محاكاة فحص ATS' بعد توليد النص للتأكد من مطابقة سيرتك الذاتية مع معايير الروبوتات وأنظمة التوظيف العالمية.",
+            btnText: "فهمت، جاهز للانطلاق! 🎉"
+        }
+    ];
+
+    let currentStep = 0;
+    const tourModal = document.getElementById("appTourModal");
+    const tourProgress = document.getElementById("tourProgress");
+    const tourIcon = document.getElementById("tourIcon");
+    const tourTitle = document.getElementById("tourTitle");
+    const tourDescription = document.getElementById("tourDescription");
+    const nextTourBtn = document.getElementById("nextTourBtn");
+    const skipTourBtn = document.getElementById("skipTourBtn");
+
+    function updateTourDOM() {
+        const stepData = tourSteps[currentStep];
+        if (tourProgress) tourProgress.innerText = `خطوة ${currentStep + 1} من ${tourSteps.length}`;
+        if (tourIcon) tourIcon.innerText = stepData.icon;
+        if (tourTitle) tourTitle.innerText = stepData.title;
+        if (tourDescription) tourDescription.innerText = stepData.desc;
+        if (nextTourBtn) nextTourBtn.innerText = stepData.btnText;
+    }
+
+    function finishTour() {
+        if (tourModal) tourModal.classList.add("hidden");
+        localStorage.setItem("ali_cv_tour_completed", "true");
+    }
+
+    if (nextTourBtn) {
+        nextTourBtn.addEventListener("click", () => {
+            if (currentStep < tourSteps.length - 1) {
+                currentStep++;
+                updateTourDOM();
+            } else {
+                finishTour();
+            }
+        });
+    }
+
+    if (skipTourBtn) {
+        skipTourBtn.addEventListener("click", finishTour);
+    }
+
+    // 6. إخفاء الواجهة الترحيبية المتحركة (Splash Screen) ثم التحقق من الجولة التعريفية
     setTimeout(() => {
         const splash = document.getElementById('splash-screen');
         if (splash) {
             splash.style.opacity = '0'; 
-            setTimeout(() => { splash.remove(); }, 500);
+            setTimeout(() => { 
+                splash.remove(); 
+                
+                // تشغيل الجولة التعريفية فقط إذا كان المستخدم يزور الموقع للمرة الأولى
+                const isTourCompleted = localStorage.getItem("ali_cv_tour_completed");
+                if (!isTourCompleted && tourModal) {
+                    tourModal.classList.remove("hidden");
+                    updateTourDOM();
+                }
+            }, 500);
         }
     }, 2000);
 });
