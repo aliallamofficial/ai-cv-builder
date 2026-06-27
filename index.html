@@ -13,13 +13,6 @@
 
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-    <style>
-        @keyframes sparkleFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
-        }
-    </style>
 </head>
 <body>
 
@@ -37,23 +30,18 @@
             </div>
         </div>
 
-        <header style="text-align: center; margin-bottom: 35px; margin-top: 20px; font-family: sans-serif;">
-            <div style="display: inline-block; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.25); color: #38bdf8; padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">
-                🤖 AI POWERED PLATFORM
+        <header class="main-app-header">
+            <div class="logo-badge">🤖 AI POWERED PLATFORM</div>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 4px;">
+                <h1 class="app-title">مُحسّن السيرة الذاتية الذكي</h1>
+                <span class="sparkle" style="font-size: 2rem;">✨</span>
             </div>
             
-            <h1 style="color: #ffffff; font-size: 2.4rem; font-weight: 850; margin: 0 0 4px 0; letter-spacing: -0.5px; text-shadow: 0 4px 15px rgba(0,0,0,0.4);">
-                مُحسّن السيرة الذاتية الذكي <span style="display: inline-block; animation: sparkleFloat 2s ease-in-out infinite;">✨</span>
-            </h1>
-            
-            <div style="font-size: 1.1rem; font-weight: 700; color: #38bdf8; letter-spacing: 1.5px; margin-bottom: 10px; text-transform: uppercase; opacity: 0.95;">
-                Ali CV Builder
-            </div>
-            
-            <p style="color: #94a3b8; font-size: 1.05rem; margin: 0 auto; max-width: 500px; line-height: 1.5;">
-                صمم، حسّن، ووثق سيرتك الذاتية رقمياً بمعايير ATS العالمية
-            </p>
+            <div class="branding-sub">Ali CV Builder</div>
+            <p class="app-subtitle">صمم، حسّن، ووثق سيرتك الذاتية رقمياً بمعايير ATS العالمية</p>
         </header>
+
         <div id="liveTipBox" style="background: rgba(56, 189, 248, 0.1); border: 1px solid #38bdf8; padding: 15px; border-radius: 8px; margin-bottom: 25px; color: #e2e8f0;">
             <span style="font-weight: bold; color: #38bdf8; display: block; margin-bottom: 5px;">💡 نصيحة الخبراء اليوم:</span>
             <p id="liveTipText" style="margin: 0; font-size: 14px; line-height: 1.6;">جاري جلب نصيحة مخصصة لك...</p>
