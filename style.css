@@ -31,7 +31,7 @@ body {
 }
 
 /* ==========================================
-    🌟 التحديث الجديد: تنسيق الهيدر الاحترافي الفاخر 🌟
+    تنسيق الهيدر الاحترافي الفاخر
    ========================================== */
 .main-app-header {
     text-align: center;
@@ -54,11 +54,11 @@ body {
     margin-bottom: 12px;
 }
 
-/* 2. اسم التطبيق بالتدرج اللوني الانسيابي من الأبيض للفضي الفاخر */
+/* 2. اسم التطبيق بالتدرج اللوني الانسيابي */
 .app-title {
     font-size: 2.4rem;
     font-weight: 700;
-    margin: 0 0 4px 0;
+    margin: 0;
     letter-spacing: -0.5px;
     background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
     -webkit-background-clip: text;
@@ -66,7 +66,7 @@ body {
     text-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-/* 3. البراندينج الفرعي الإنجليزي الأنيق */
+/* 3. البراندينج الفرعي الإنجليزي */
 .branding-sub {
     font-size: 1.1rem;
     font-weight: 700;
@@ -77,7 +77,7 @@ body {
     opacity: 0.95;
 }
 
-/* الوصف الفرعي للمنصة */
+/* الوصف الفرعي */
 .app-subtitle {
     color: #94a3b8;
     font-size: 1.05rem;
@@ -98,7 +98,6 @@ body {
     50% { transform: translateY(-4px); }
 }
 
-/* الهيدر القديم كدعم إضافي */
 header {
     text-align: center;
     margin-bottom: 40px;
