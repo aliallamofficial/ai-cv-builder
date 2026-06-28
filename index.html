@@ -45,7 +45,7 @@
             <p class="app-subtitle">صمم، حسّن، ووثق سيرتك الذاتية رقمياً بمعايير ATS العالمية</p>
         </header>
 
-        <div id="liveTipBox" style="background: rgba(56, 189, 248, 0.1); border: 1px solid #38bdf8; padding: 15px; border-radius: 8px; margin-bottom: 25px; color: #e2e8f0;">
+        <div id="liveTipBox" style="background: rgba(56, 189, 248, 0.1); border: 1px solid #38bdf8; padding: 15px; border-radius: 8px; margin-bottom: 25px; color: #e2e8f0; transition: box-shadow 0.3s ease;">
             <span style="font-weight: bold; color: #38bdf8; display: block; margin-bottom: 5px;">💡 نصيحة الخبراء اليوم:</span>
             <p id="liveTipText" style="margin: 0; font-size: 14px; line-height: 1.6;">جاري جلب نصيحة مخصصة لك...</p>
         </div>
@@ -111,12 +111,12 @@
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button id="optimizeBtn" style="width: 100%; padding: 14px; border: none; border-radius: 6px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s;">✨ إنشاء وتحسين السيرة الذاتية الذكية</button>
+                <button id="optimizeBtn" style="width: 100%; padding: 14px; border: none; border-radius: 6px; background: #2563eb; color: white; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s, box-shadow 0.3s ease;">✨ إنشاء وتحسين السيرة الذاتية الذكية</button>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;">
                     <button id="coverLetterBtn" style="padding: 10px; border: 1px solid #475569; border-radius: 6px; background: #334155; color: #fff; cursor: pointer; font-weight: bold;">✉️ صانع رسالة التغطية</button>
                     <button id="rateBtn" style="padding: 10px; border: 1px solid #475569; border-radius: 6px; background: #334155; color: #fff; cursor: pointer; font-weight: bold;">📊 تقييم البيانات</button>
-                    <button id="atsCheckBtn" style="padding: 10px; border: 1px solid #475569; border-radius: 6px; background: #334155; color: #fff; cursor: pointer; font-weight: bold;">🔍 محاكاة فحص ATS</button>
+                    <button id="atsCheckBtn" style="padding: 10px; border: 1px solid #475569; border-radius: 6px; background: #334155; color: #fff; cursor: pointer; font-weight: bold; transition: box-shadow 0.3s ease;">🔍 محاكاة فحص ATS</button>
                     <button id="signCvBtn" style="padding: 10px; border: 1px solid #10b981; border-radius: 6px; background: rgba(16,185,129,0.1); color: #10b981; cursor: pointer; font-weight: bold;">🔐 توقيع GPG رقمي</button>
                 </div>
             </div>
@@ -186,20 +186,20 @@
         </div>
     </div>
 
-    <div id="appTourModal" class="tour-backdrop hidden">
-        <div class="tour-card">
-            <div class="tour-header">
-                <span id="tourProgress" class="tour-step-badge">خطوة 1 من 3</span>
-                <button id="skipTourBtn" class="tour-skip-link">تخطي الجولة</button>
+    <div id="appTourModal" class="hidden" style="position: absolute; z-index: 10000; background: #1e293b; border: 2px solid #38bdf8; box-shadow: 0 10px 25px rgba(0,0,0,0.5); padding: 18px; border-radius: 12px; width: 280px; direction: rtl; text-align: right; transition: all 0.3s ease;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span id="tourProgress" style="background: #38bdf8; color: #0f172a; font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 20px;">خطوة 1 من 3</span>
+            <button id="skipTourBtn" style="background: none; border: none; color: #94a3b8; font-size: 12px; cursor: pointer; text-decoration: underline;">تخطي</button>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 15px;">
+            <div id="tourIcon" style="font-size: 1.5rem;">🚀</div>
+            <div>
+                <h4 id="tourTitle" style="margin: 0 0 5px 0; color: #fff; font-size: 14px; font-weight: bold;">العنوان</h4>
+                <p id="tourDescription" style="margin: 0; color: #cbd5e1; font-size: 12px; line-height: 1.5;">الوصف المخصص للخطوة.</p>
             </div>
-            <div class="tour-body">
-                <div id="tourIcon" class="tour-main-icon">🚀</div>
-                <h2 id="tourTitle" class="tour-main-title">مرحباً بك في مستقبلك المهني!</h2>
-                <p id="tourDescription" class="tour-main-desc">دعنا نأخذك في جولة سريعة مدتها دقيقة واحدة للتعرف على كيفية صناعة سيرة ذاتية لا تقهر بالذكاء الاصطناعي.</p>
-            </div>
-            <div class="tour-footer">
-                <button id="nextTourBtn" class="tour-next-btn">ابدأ الرحلة الآن ←</button>
-            </div>
+        </div>
+        <div style="text-align: left;">
+            <button id="nextTourBtn" style="background: #38bdf8; color: #0f172a; border: none; padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer;">ابدأ الرحلة الآن ←</button>
         </div>
     </div>
 
