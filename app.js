@@ -9,6 +9,123 @@ const cvTips = [
     "الكلمات المفتاحية المأخوذة من إعلان الوظيفة نفسه هي مفتاحك السحري لتخطي فلترة الـ ATS."
 ];
 
+// ==========================================
+// 🔥 ميزة 1: عداد قياس قوة وجاهزية الـ CV لنظام الـ ATS
+// ==========================================
+function initCVScoreGauge() {
+    const inputSection = document.querySelector('.input-section');
+    if (!inputSection || document.getElementById('cvScoreContainer')) return;
+
+    const gaugeContainer = document.createElement('div');
+    gaugeContainer.id = 'cvScoreContainer';
+    gaugeContainer.style.cssText = `
+        background: #0f172a;
+        border: 1px solid #334155;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    `;
+
+    gaugeContainer.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="color: #94a3b8; font-size: 14px; font-weight: bold;">📊 مدى جاهزية وقوة السيرة الذاتية لـ ATS:</span>
+            <span id="cvScorePercent" style="color: #38bdf8; font-weight: bold; font-size: 16px;">0%</span>
+        </div>
+        <div style="width: 100%; background: #1e293b; height: 10px; border-radius: 5px; overflow: hidden;">
+            <div id="cvScoreBar" style="width: 0%; height: 100%; background: #ef4444; transition: width 0.4s ease; border-radius: 5px;"></div>
+        </div>
+        <p id="cvScoreFeedback" style="margin: 8px 0 0 0; font-size: 12px; color: #64748b; line-height: 1.4;">ابدأ بكتابة بياناتك ليقوم مستشار الذكاء الاصطناعي بتقييمها لحظياً...</p>
+    `;
+
+    inputSection.insertBefore(gaugeContainer, inputSection.firstChild);
+
+    const inputs = ['fullName', 'jobTitle', 'experience', 'skills'];
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', calculateCVScore);
+    });
+}
+
+function calculateCVScore() {
+    const fullName = document.getElementById('fullName')?.value.trim() || "";
+    const jobTitle = document.getElementById('jobTitle')?.value.trim() || "";
+    const experience = document.getElementById('experience')?.value.trim() || "";
+    const skills = document.getElementById('skills')?.value.trim() || "";
+
+    let score = 0;
+    if (fullName.length > 4) score += 15;
+    if (jobTitle.length > 3) score += 15;
+    if (experience.length > 10) score += 20;
+    if (experience.length > 50) score += 15;
+
+    const skillsCount = skills.split(',').filter(s => s.trim().length > 1).length;
+    if (skillsCount >= 2) score += 20;
+    if (skillsCount >= 5) score += 15;
+
+    const scoreBar = document.getElementById('cvScoreBar');
+    const scorePercent = document.getElementById('cvScorePercent');
+    const scoreFeedback = document.getElementById('cvScoreFeedback');
+
+    if (scoreBar && scorePercent && scoreFeedback) {
+        scoreBar.style.width = `${score}%`;
+        scorePercent.innerText = `${score}%`;
+
+        if (score < 40) {
+            scoreBar.style.background = '#ef4444';
+            scoreFeedback.innerHTML = '⚠️ البيانات غير كافية، سيقوم نظام الـ ATS برفض الملف تلقائياً.';
+            scoreFeedback.style.color = '#ef4444';
+        } else if (score < 75) {
+            scoreBar.style.background = '#f59e0b';
+            scoreFeedback.innerHTML = '⚡ أداء جيد! أضف المزيد من المهارات أو تفاصيل الخبرة لتخطي حاجز المنافسة.';
+            scoreFeedback.style.color = '#f59e0b';
+        } else {
+            scoreBar.style.background = '#10b981';
+            scoreFeedback.innerHTML = '🔥 مذهل! السيرة الذاتية مدعمة بكلمات مفتاحية قوية وجاهزة للقنص الرقمي.';
+            scoreFeedback.style.color = '#10b981';
+        }
+    }
+}
+
+// ==========================================
+// 🔥 ميزة 2: نظام تخصيص الثيم الملون التفاعلي (Dynamic Color Picker)
+// ==========================================
+function initThemeColorPicker() {
+    const modalBody = document.querySelector('.modal-body');
+    if (!modalBody || document.getElementById('themeColorSection')) return;
+
+    const colorCard = document.createElement('div');
+    colorCard.id = 'themeColorSection';
+    colorCard.className = 'settings-section-card';
+    colorCard.innerHTML = `
+        <h3>🎨 لون الهوية البصرية المخصص</h3>
+        <p>اختر اللون الرئيسي المفضل لتخصيص خطوط وعناوين سيرتك الذاتية بشكل فوري ومميز.</p>
+        <div style="display:flex; gap:12px; margin-top:10px; align-items:center;">
+            <input type="color" id="themePrimaryColor" value="${localStorage.getItem('cv_theme_color') || '#3b82f6'}" style="width:50px; height:35px; border:none; border-radius:4px; cursor:pointer; background:none;">
+            <span style="font-size:13px; color:#cbd5e1;">اضغط على الصندوق لاختيار درجة لونك المفضلة</span>
+        </div>
+    `;
+    modalBody.insertBefore(colorCard, modalBody.firstChild);
+
+    document.getElementById('themePrimaryColor').addEventListener('input', (e) => {
+        const selectedColor = e.target.value;
+        localStorage.setItem('cv_theme_color', selectedColor);
+        applyThemeColorToLiveCV();
+    });
+}
+
+function applyThemeColorToLiveCV() {
+    const activeColor = localStorage.getItem('cv_theme_color') || '#3b82f6';
+    const cvArea = document.getElementById('cvTemplateArea');
+    if (cvArea) {
+        if (document.getElementById('templateSelect').value === 'modern') {
+            cvArea.style.borderLeftColor = activeColor;
+        } else if (document.getElementById('templateSelect').value === 'elegant') {
+            cvArea.style.borderTopColor = activeColor;
+        }
+    }
+}
+
 // دالة التحقق من حد الاستخدام اليومي المخصص (5 مرات في اليوم)
 function handleCVCreation() {
     const maxAllowedPerDay = 5; 
@@ -47,7 +164,7 @@ async function askAI(promptMessage, systemMessage) {
     return await response.text();
 }
 
-// دالة ذكية لتحويل لغة الـ Markdown التلقائية (النجوم **) إلى وسوم HTML احترافية وعريضة
+// دالة تحويل الـ Markdown
 function formatMarkdown(text) {
     if (!text) return '';
     return text
@@ -56,22 +173,23 @@ function formatMarkdown(text) {
         .replace(/\n/g, '<br>');                        
 }
 
-// دالة لتطبيق ثيم القوالب ودعم ميزة التحكم بنوع الخط وحجمه برمجياً
+// دالة لتطبيق ثيم القوالب
 function getTemplateStyles(selectedLang, selectedTemplate) {
     const chosenFont = document.getElementById('fontFamilySelect').value;
     const chosenSize = document.getElementById('fontSizeSelect').value;
+    const activeColor = localStorage.getItem('cv_theme_color') || '#3b82f6';
 
     let styles = `padding:25px; line-height:1.8; font-size:${chosenSize}; font-family:${chosenFont}; border-radius:8px; margin-top:15px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); overflow: hidden;`;
     styles += selectedLang === 'ar' ? " text-align: right; direction: rtl;" : " text-align: left; direction: ltr;";
     
-    if (selectedTemplate === 'modern') styles += " background-color: #1e293b; color: #f8fafc; border-left: 6px solid #3b82f6;";
+    if (selectedTemplate === 'modern') styles += ` background-color: #1e293b; color: #f8fafc; border-left: 6px solid ${activeColor};`;
     else if (selectedTemplate === 'classic') styles += " background-color: #ffffff; color: #000000; border: 2px solid #000000;";
-    else if (selectedTemplate === 'elegant') styles += " background-color: #fafaf9; color: #1c1917; border-top: 6px solid #d97706;";
+    else if (selectedTemplate === 'elegant') styles += ` background-color: #fafaf9; color: #1c1917; border-top: 6px solid ${activeColor};`;
     
     return styles;
 }
 
-// دالة مخصصة لحقن التوقيع الرقمي ومفتاح الـ GPG في أسفل الـ CV لتوثيقه رسمياً وحمايته
+// دالة لحقن التوقيع الرقمي ومفتاح الـ GPG
 function appendCryptoSignatureToCV(htmlContent) {
     const signatureHtml = `
         <div class="cv-crypto-footer" style="margin-top: 35px; padding-top: 15px; border-top: 1px dashed #cbd5e1; text-align: center; font-family: monospace; direction: ltr; clear: both;">
@@ -82,7 +200,7 @@ function appendCryptoSignatureToCV(htmlContent) {
     return htmlContent + signatureHtml;
 }
 
-// دالة لتوليد الـ QR Code السريع وإضافته تلقائياً داخل السيرة الذاتية لربط الملفات الخارجية
+// دالة لتوليد الـ QR Code السريع
 function generateCVQRCode(containerId, textToEncode) {
     const existingQr = document.getElementById('cvQrCode');
     if (existingQr) existingQr.remove();
@@ -106,7 +224,7 @@ function generateCVQRCode(containerId, textToEncode) {
     }
 }
 
-// حدث الضغط على زر تحسين السيرة الذاتية (مدمج به ميزة التدقيق اللغوي التلقائي)
+// حدث تحسين السيرة الذاتية
 document.getElementById('optimizeBtn').addEventListener('click', async () => {
     const btn = document.getElementById('optimizeBtn');
     const fullName = document.getElementById('fullName').value.trim();
@@ -167,6 +285,7 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
             resultBox.innerHTML = `<div id="cvTemplateArea" style="${templateStyles}">${formattedResult}</div>`;
             generateCVQRCode('cvTemplateArea', `https://aliallamofficial.github.io/ali-cv-builder/?user=${encodeURIComponent(fullName)}`);
             downloadContainer.classList.remove('hidden'); 
+            applyThemeColorToLiveCV();
         } else { throw new Error(); }
     } catch (error) {
         resultBox.innerHTML = `<p style="color:red;">حدث خطأ أثناء الصياغة. يرجى المحاولة مجدداً.</p>`;
@@ -176,7 +295,7 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
     }
 });
 
-// ✉️ ميزة صانع رسائل التغطية الذكي (AI Cover Letter Generator)
+// ✉️ صانع رسائل التغطية الذكي (AI Cover Letter Generator)
 document.getElementById('coverLetterBtn').addEventListener('click', async () => {
     const btn = document.getElementById('coverLetterBtn');
     const fullName = document.getElementById('fullName').value.trim();
@@ -211,6 +330,7 @@ document.getElementById('coverLetterBtn').addEventListener('click', async () => 
             let templateStyles = getTemplateStyles(selectedLang, document.getElementById('templateSelect').value);
             resultBox.innerHTML = `<div id="cvTemplateArea" style="${templateStyles}"><h3>✉️ رسالة التغطية الاحترافية (Cover Letter):</h3><br>${formattedLetter}</div>`;
             document.getElementById('downloadContainer').classList.remove('hidden');
+            applyThemeColorToLiveCV();
         }
     } catch (e) {
         alert("فشل خادم توليد الرسائل حالياً.");
@@ -256,7 +376,7 @@ document.getElementById('rateBtn').addEventListener('click', async () => {
     }
 });
 
-// 🔍 تشغيل ميزة فحص التوافق العالمي ATS Shadow Checker
+// 🔍 ميزة فحص التوافق العالمي ATS Shadow Checker
 document.getElementById('atsCheckBtn').addEventListener('click', async () => {
     const btn = document.getElementById('atsCheckBtn');
     const cvArea = document.getElementById('cvTemplateArea');
@@ -284,7 +404,7 @@ document.getElementById('atsCheckBtn').addEventListener('click', async () => {
     }
 });
 
-// 🔐 تشغيل ميزة التوقيع والتشفير الرقمي GPG الرقمي للمستند
+// 🔐 ميزة التوقيع والتشفير الرقمي GPG الرقمي للمستند
 document.getElementById('signCvBtn').addEventListener('click', () => {
     const cvArea = document.getElementById('cvTemplateArea');
     if (!cvArea) return;
@@ -299,7 +419,7 @@ document.getElementById('signCvBtn').addEventListener('click', () => {
     }
 });
 
-// 📥 ميزة إظهار خيارات القائمة المنسدلة للتحميل عند الضغط على الزر الرئيسي
+// 📥 إدارة قائمة التحميل
 document.getElementById('mainDownloadBtn').addEventListener('click', (e) => {
     e.stopPropagation();
     document.getElementById('downloadOptions').classList.toggle('hidden');
@@ -310,10 +430,10 @@ document.addEventListener('click', () => {
     if(options) options.classList.add('hidden');
 });
 
-// 📄 خيار تحميل بصيغة PDF (تم تصحيح وسم الإغلاق لعدم حدوث تعليق)
+// 📄 🔥 ميزة 3: خيار طباعة وتحميل متقدم ومتوافق بالكامل مع الهوية الملونة
 document.getElementById('downloadPdfBtn').addEventListener('click', () => {
     const cvElement = document.getElementById('cvTemplateArea');
-    if (!cvElement || cvElement.innerText.trim() === "" || cvElement.innerText.includes("ستظهر سيرتك الذاتية")) return;
+    if (!cvElement || cvElement.innerText.trim() === "") return;
 
     let currentHtml = cvElement.innerHTML;
     if (!currentHtml.includes('cv-crypto-footer')) {
@@ -323,6 +443,7 @@ document.getElementById('downloadPdfBtn').addEventListener('click', () => {
     const printWindow = window.open('', '_blank', 'width=800,height=900');
     const isEn = cvElement.style.textAlign === 'left';
     const direction = isEn ? 'ltr' : 'rtl';
+    const activeColor = localStorage.getItem('cv_theme_color') || '#3b82f6';
 
     printWindow.document.write(`
         <!DOCTYPE html>
@@ -332,7 +453,7 @@ document.getElementById('downloadPdfBtn').addEventListener('click', () => {
             <style>
                 body { font-family: Arial, sans-serif; padding: 40px; background: #ffffff; color: #000000; line-height: 1.8; font-size: 15px;}
                 strong { font-weight: bold; color: #000000; }
-                .crypto-badge { display: none !important; }
+                .crypto-badge { display: inline-block !important; margin-bottom:15px; color:${activeColor}; }
                 @media print { body { padding: 0; } @page { margin: 2cm; } }
             </style>
         </head>
@@ -364,7 +485,7 @@ document.getElementById('downloadWordBtn').addEventListener('click', () => {
 });
 
 // ==========================================
-// 🔄 دالة الفحص التلقائي لآخر تعديل للملفات على السيرفر لإطلاق التنبيهات
+// 🔄 دالة الفحص التلقائي لآخر تعديل للملفات
 // ==========================================
 async function checkAutomatedUpdates() {
     if (!navigator.onLine) return;
@@ -391,16 +512,20 @@ async function checkAutomatedUpdates() {
 }
 
 // ==========================================
-// ⚙️ إدارة القائمة المنسدلة والتهيئة العامة عند التحميل
+// ⚙️ إدارة القائمة والتهيئة العامة عند التحميل
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
-    // 1. تشغيل النصائح المحلية العشوائية عند فتح الصفحة
+    // تشغيل الميزات الجديدة تلقائياً عند التهيئة
+    setTimeout(() => {
+        initCVScoreGauge();
+        initThemeColorPicker();
+    }, 100);
+
     const tipElement = document.getElementById('liveTipText');
     if (tipElement) {
         tipElement.innerText = cvTips[Math.floor(Math.random() * cvTips.length)];
     }
 
-    // 2. إدارة فتح وإغلاق قائمة أعلى اليسار المنسدلة (زر الترس)
     const dropdownToggleBtn = document.getElementById('dropdownToggleBtn');
     const topLeftMenu = document.getElementById('topLeftMenu');
     if (dropdownToggleBtn && topLeftMenu) {
@@ -416,7 +541,6 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // [إدارة الإعدادات]: إضافة مستمعات الأحداث لفتح وإغلاق نافذة الإعدادات
     const openSettingsBtn = document.getElementById('openSettingsBtn');
     const settingsPageModal = document.getElementById('settingsPageModal');
     const closeSettingsBtn = document.getElementById('closeSettingsBtn');
@@ -441,7 +565,6 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 🔒 [تحديث سياسة الخصوصية الجديد]: فتح الرابط المخصص بشكل تلقائي عند الضغط عليه
     const privacyPolicyBtn = document.getElementById('privacyPolicyBtn') || document.getElementById('privacyPolicyLink');
     if (privacyPolicyBtn) {
         privacyPolicyBtn.addEventListener('click', (e) => {
@@ -450,7 +573,6 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. ربط زر تفعيل الإشعارات من داخل نافذة الإعدادات
     const enableNotificationsBtn = document.getElementById('enableNotificationsBtn');
     if (enableNotificationsBtn) {
         enableNotificationsBtn.addEventListener('click', () => {
@@ -471,10 +593,8 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 4. تشغيل الفحص الآلي الذكي للتحديثات المرفوعة على السيرفر
     checkAutomatedUpdates();
 
-    // 5. ميزة الجولة التعريفية الاحترافية والذكية (Onboarding Tour)
     const tourSteps = [
         {
             icon: "🚀",
@@ -534,7 +654,6 @@ window.addEventListener('DOMContentLoaded', () => {
         skipTourBtn.addEventListener("click", finishTour);
     }
 
-    // 6. إخفاء الواجهة الترحيبية المتحركة (Splash Screen) ثم التحقق من الجولة التعريفية
     setTimeout(() => {
         const splash = document.getElementById('splash-screen');
         if (splash) {
@@ -542,7 +661,6 @@ window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => { 
                 splash.remove(); 
                 
-                // تشغيل الجولة التعريفية فقط إذا كان المستخدم يزور الموقع للمرة الأولى
                 const isTourCompleted = localStorage.getItem("ali_cv_tour_completed");
                 if (!isTourCompleted && tourModal) {
                     tourModal.classList.remove("hidden");
