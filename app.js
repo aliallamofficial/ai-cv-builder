@@ -198,7 +198,7 @@ function getTemplateStyles(selectedLang, selectedTemplate) {
     const activeColor = localStorage.getItem('cv_theme_color') || '#3b82f6';
 
     let styles = `padding:25px; line-height:1.8; font-size:${chosenSize}; font-family:${chosenFont}; border-radius:8px; margin-top:15px; box-shadow: 0 2px 10px rgba(0,0,0,0.15); overflow: hidden;`;
-    styles += selectedLang === 'ar' ? " text-align: right; direction: rtl;" : " text-align: left; direction: ltr(";
+    styles += selectedLang === 'ar' ? " text-align: right; direction: rtl;" : " text-align: left; direction: ltr;";
     
     if (selectedTemplate === 'modern') styles += ` background-color: #1e293b; color: #f8fafc; border-left: 6px solid ${activeColor};`;
     else if (selectedTemplate === 'classic') styles += " background-color: #ffffff; color: #000000; border: 2px solid #000000;";
@@ -243,7 +243,7 @@ function generateCVQRCode(containerId, textToEncode) {
 }
 
 // ==========================================
-// 📄 🔥 ميزة 3: تحميل مباشر بصيغة PDF حقيقية (تم تعديل الخصائص لمنع الصفحة البيضاء)
+// 📄 🔥 ميزة 3: تحميل مباشر بصيغة PDF حقيقية (تم التحديث لمنع الصفحة البيضاء نهائياً)
 // ==========================================
 document.getElementById('downloadPdfBtn').addEventListener('click', () => {
     const cvElement = document.getElementById('cvTemplateArea');
@@ -252,40 +252,55 @@ document.getElementById('downloadPdfBtn').addEventListener('click', () => {
         return;
     }
 
-    let currentHtml = cvElement.innerHTML;
-    if (!currentHtml.includes('cv-crypto-footer')) {
-        cvElement.innerHTML = appendCryptoSignatureToCV(currentHtml);
-    }
-
     const fullName = document.getElementById('fullName').value.trim() || "CV";
     const originalBtnText = document.getElementById('downloadPdfBtn').innerText;
     document.getElementById('downloadPdfBtn').innerText = "⏳ جاري التجهيز...";
 
+    // إنشاء حاوية مستقلة مؤقتة بخلفية بيضاء ونصوص سوداء واضحة لضمان عدم اختفاء الألوان أثناء التصوير
+    const printArea = document.createElement('div');
+    printArea.style.cssText = `
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        padding: 30px !important;
+        width: 100%;
+        box-sizing: border-box;
+    `;
+    printArea.innerHTML = cvElement.innerHTML;
+
+    // إجبار كل النصوص داخل الحاوية المؤقتة على أخذ اللون الأسود لضمان ظهورها بالمكتبة
+    const allTextElements = printArea.querySelectorAll('*');
+    allTextElements.forEach(el => {
+        el.style.color = '#000000';
+    });
+
+    // إضافة التوقيع الرقمي إن لم يكن موجوداً
+    if (!printArea.innerHTML.includes('cv-crypto-footer')) {
+        printArea.innerHTML = appendCryptoSignatureToCV(printArea.innerHTML);
+    }
+
     const startPdfGeneration = () => {
-        // الخصائص المعدلة لضمان استقرار الألوان والتقاط المحتوى كاملاً
         const options = {
-            margin:       [10, 10, 10, 10],
+            margin:       [12, 12, 12, 12],
             filename:     `${fullName}_Resume.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
+            image:        { type: 'jpeg', quality: 1.0 },
             html2canvas:  { 
                 scale: 2, 
                 useCORS: true, 
                 logging: false,
                 letterRendering: true,
-                backgroundColor: null // يمنع فرض السواد أو البياض التلقائي على العناصر الملونة
+                backgroundColor: '#ffffff'
             },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // نمنح المتصفح مهلة 300ms للتأكد من رندرة العناصر الرسومية قبل التصوير
         setTimeout(() => {
-            html2pdf().set(options).from(cvElement).save().then(() => {
+            html2pdf().set(options).from(printArea).save().then(() => {
                 document.getElementById('downloadPdfBtn').innerText = originalBtnText;
             }).catch((err) => {
                 console.error("خطأ أثناء توليد الـ PDF:", err);
                 document.getElementById('downloadPdfBtn').innerText = originalBtnText;
             });
-        }, 300);
+        }, 400);
     };
 
     if (typeof html2pdf === 'undefined') {
@@ -335,7 +350,7 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
     }
 
     if (!navigator.onLine) {
-        alert(selectedLang === 'ar' ? "أنت تعمل الآن بدون إنترنت (Offline Mode)." : "You are obsolete.");
+        alert(selectedLang === 'ar' ? "أنت تعمل الآن بدون إنترنت (Offline Mode)." : "You are offline.");
         let offlineResult = `<h2>${fullName}</h2><h3>${jobTitle}</h3><hr><br>${experience || ''}<br>${skills || ''}`;
         let templateStyles = getTemplateStyles(selectedLang, selectedTemplate);
         resultBox.innerHTML = `<div id="cvTemplateArea" style="${templateStyles}">${offlineResult}</div>`;
