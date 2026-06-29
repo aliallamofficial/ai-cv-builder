@@ -143,75 +143,13 @@
             <button id="mainDownloadBtn" style="padding: 12px 30px; background: #10b981; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
                 📥 تحميل المستند الآن ▾
             </button>
-            <div id="downloadOptions" class="hidden" style="position: absolute; left: 50%; transform: translateX(-50%); top: 50px; background: #1e293b; border: 1px solid #334155; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border-radius: 6px; width: 220px; z-index: 100; text-align: right;">
-                <button id="downloadPdfBtn" style="width: 100%; background: none; border: none; color: #fff; padding: 12px; text-align: right; cursor: pointer; font-weight: bold; font-family: inherit; border-bottom: 1px solid #334155;">📄 تصدير كـ PDF جاهز للطباعة</button>
-                <button id="downloadWordBtn" style="width: 100%; background: none; border: none; color: #fff; padding: 12px; text-align: right; cursor: pointer; font-weight: bold; font-family: inherit;">📝 تحميل ملف Word قابل للتعديل (.doc)</button>
+            <div id="downloadOptions" class="hidden" style="position: absolute; left: 50%; transform: translateX(-50%); top: 50px; background: #1e293b; border: 1px solid #334155; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border-radius: 6px; width: 220px; z-index: 100; text-align: right; padding: 5px 0;">
+                <button id="downloadPdfBtn" style="width: 100%; background: none; color: white; padding: 10px; border: none; text-align: right; cursor: pointer; font-size: 14px;">📄 تحميل كملف PDF مباشر</button>
             </div>
         </div>
 
     </div>
 
-    <div id="settingsPageModal" class="modal-backdrop hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>⚙️ إعدادات التطبيق</h2>
-                <button id="closeSettingsBtn" class="close-modal-x">&times;</button>
-            </div>
-            
-            <div class="modal-body">
-                <div class="settings-section-card">
-                    <h3>🔔 نظام تنبيهات دفع الويب</h3>
-                    <p>قم بتفعيل الإشعارات ليصلك إشعار فوري وتلقائي بمجرد قيامنا بتحديث خوارزميات أو ميزات التطبيق.</p>
-                    <button id="enableNotificationsBtn" class="action-settings-btn">تفعيل الإشعارات الآن</button>
-                </div>
-
-                <div class="settings-section-card">
-                    <h3>🔒 سياسة الخصوصية والأمان</h3>
-                    <p>نحن نحترم خصوصيتك بالكامل. كافة البيانات المدخلة لتوليد السير الذاتية تتم معالجتها لحظياً ولا يتم تخزينها على خوادمنا مطلقاً.</p>
-                    <a href="#" id="privacyPolicyLink" target="_blank" class="settings-link">قراءة سياسة الخصوصية الكاملة ←</a>
-                </div>
-            </div>
-
-            <div class="modal-footer" style="padding: 25px 20px; background: #1e293b; border-top: 1px solid #334155; text-align: center; direction: rtl;">
-                <p style="margin: 0 0 12px 0; font-size: 14px; color: #cbd5e1;">
-                    تم التطوير بكل فخر بواسطة <strong style="color: #38bdf8;">علي حاتم علام</strong> © 2026
-                </p>
-
-                <div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; color: #475569; font-size: 13px;">
-                    <a href="https://github.com/aliallamofficial" target="_blank" style="color: #ffffff; text-decoration: none; font-weight: bold;">GitHub</a>
-                    <span>|</span>
-                    <a href="https://linkedin.com/in/aliallamofficial" target="_blank" style="color: #38bdf8; text-decoration: none; font-weight: bold;">LinkedIn</a>
-                    <span>|</span>
-                    <a href="mailto:prof.ali.hatem.cairo@gmail.com" style="color: #10b981; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 4px;">
-                        ✉️ تواصل معي
-                    </a>
-                </div>
-
-                <div class="crypto-verified-box" style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 10px; display: inline-block; min-width: 280px; font-family: monospace; font-size: 11px; color: #64748b; line-height: 1.5; direction: ltr; text-align: center;">
-                    Verified: @aliallamofficial [GPG:<br>
-                    55392380FBF1C8F1]
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="appTourModal" class="tour-backdrop hidden">
-        <div class="tour-card">
-            <div class="tour-header">
-                <span id="tourProgress" class="tour-step-badge">خطوة 1 من 3</span>
-                <button id="skipTourBtn" class="tour-skip-link">تخطي الجولة</button>
-            </div>
-            <div class="tour-body">
-                <div id="tourIcon" class="tour-main-icon">🚀</div>
-                <h2 id="tourTitle" class="tour-main-title">مرحباً بك في مستقبلك المهني!</h2>
-                <p id="tourDescription" class="tour-main-desc">دعنا نأخذك في جولة سريعة مدتها دقيقة واحدة للتعرف على كيفية صناعة سيرة ذاتية لا تقهر بالذكاء الاصطناعي.</p>
-            </div>
-            <div class="tour-footer">
-                <button id="nextTourBtn" class="tour-next-btn">ابدأ الرحلة الآن ←</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="app.js" defer></script>
+    <script src="app.js"></script>
 </body>
 </html>
