@@ -151,48 +151,31 @@ function handleCVCreation() {
 }
 
 // ==========================================
-// 🤖 دالة الاتصال المضمونة والسريعة بالسيرفر الذكي (Llama-3) لمنع أخطاء الحجب
+// 🤖 دالة عامة مطورة ومحمية للاتصال بالذكاء الاصطناعي مع معالجة صامتة لضغط السيرفر
 // ==========================================
 async function askAI(promptMessage, systemMessage, retries = 3) {
-    const url = `https://text.pollinations.ai/openai`; 
+    const url = `https://text.pollinations.ai/`;
     try {
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
-                model: "llama", 
-                messages: [
-                    { role: "system", content: systemMessage },
-                    { role: "user", content: promptMessage }
-                ],
-                jsonMode: false
+                messages: [{ role: "user", content: promptMessage }],
+                system: systemMessage
             })
         });
 
         if ((response.status === 429 || response.status === 503 || !response.ok) && retries > 0) {
-            await new Promise(resolve => setTimeout(resolve, 1500)); 
+            await new Promise(resolve => setTimeout(resolve, 2000)); 
             return await askAI(promptMessage, systemMessage, retries - 1); 
         }
 
         if (!response.ok) throw new Error();
-        
-        const rawText = await response.text();
-        
-        // التحقق الذكي ومعالجة صيغة الرد المستلمة (JSON أو نص عادي) لمنع سقوط الاتصال
-        try {
-            const parsed = JSON.parse(rawText);
-            if (parsed.choices && parsed.choices[0] && parsed.choices[0].message) {
-                return parsed.choices[0].message.content;
-            } else if (parsed.content) {
-                return parsed.content;
-            }
-        } catch(e) {
-            return rawText;
-        }
+        return await response.text();
 
     } catch (error) {
         if (retries > 0) {
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await new Promise(resolve => setTimeout(resolve, 2000));
             return await askAI(promptMessage, systemMessage, retries - 1);
         }
         throw error;
@@ -200,19 +183,18 @@ async function askAI(promptMessage, systemMessage, retries = 3) {
 }
 
 // ==========================================
-// ✨ دالة تحويل الـ Markdown وتطهير النص التام لمنع الإعلانات
+// ✨ دالة تحويل الـ Markdown مع تنظيف دقيق للنصوص الإعلانية والترويجية لـ Pollinations
 // ==========================================
 function formatMarkdown(text) {
     if (!text) return '';
 
-    // تصفية وحذف الجمل والروابط التي يضيفها السيرفر المجاني تلقائياً في النهاية من الجذور
+    // تصفية وحذف الجمل والروابط التي يضيفها السيرفر المجاني تلقائياً في النهاية
     let cleanedText = text
-        .replace(/Powered by.*/gi, '')
+        .replace(/Powered by Pollinations\.AI.*/gi, '')
         .replace(/.*Support our mission.*/gi, '')
         .replace(/.*accessible for everyone.*/gi, '')
-        .replace(/🌸.*🌸/gi, '')
-        .replace(/Pollinations.*/gi, '')
-        .replace(/Text\.Pollinations.*/gi, '');
+        .replace(/🌸\s*Ad\s*🌸/gi, '')
+        .replace(/Pollinations\.AI:/gi, '');
 
     // تطبيق وسوم HTML المعتادة على النص النظيف
     return cleanedText
