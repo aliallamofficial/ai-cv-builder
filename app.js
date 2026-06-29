@@ -5,7 +5,7 @@ const cvTips = [
     "تجنب وضع صورتك الشخصية إذا كنت تقدم على شركات عالمية تعتمد نظام ATS تماماً.",
     "احرص على ألا تتجاوز سيرتك الذاتية صفحة واحدة إذا كانت خبرتك أقل من 5 سنوات.",
     "استخدم أرقاماً ونسباً مئوية حقيقية لإثبات إنجازاتك (مثال: زيادة المبيعات بنسبة 20%).",
-    "البريد الإلكتروني المهني يجب أن يحتوي على اسمك الحقيقي، ابتعد تماماً عن الأسماء المستعارة.",
+    "البريد الإلكتروني المهني يجب أن يحتوي على اسمك الحقيقي، ابتعد تماماً عن الأسماء مستعارة.",
     "الكلمات المفتاحية المأخوذة من إعلان الوظيفة نفسه هي مفتاحك السحري لتخطي فلترة الـ ATS."
 ];
 
@@ -243,12 +243,12 @@ function generateCVQRCode(containerId, textToEncode) {
 }
 
 // ==========================================
-// 📄 🔥 ميزة 3: التصدير الذكي إلى PDF عبر معالج الطباعة الأصلي (نسخة مطورة ومضمونة)
+// 📄 🔥 ميزة 3: التنزيل المباشر الفوري كملف PDF (دون فتح نافذة الطباعة وبأعلى استقرار)
 // ==========================================
 document.getElementById('downloadPdfBtn').addEventListener('click', () => {
     const cvElement = document.getElementById('cvTemplateArea');
     if (!cvElement || cvElement.innerText.trim() === "") {
-        alert("الرجاء توليد السيرة الذاتية أولاً!");
+        alert("الرجاء توليد السيرة الذاتية أولاً قبل التحميل!");
         return;
     }
 
@@ -257,59 +257,48 @@ document.getElementById('downloadPdfBtn').addEventListener('click', () => {
         cvElement.innerHTML = appendCryptoSignatureToCV(cvElement.innerHTML);
     }
 
-    // إخفاء واجهة التطبيق بالكامل عن طريق إضافة كلاس مؤقت لجسم الصفحة
-    const allContainers = document.querySelectorAll('body > *:not(#resultBox):not(style):not(script)');
-    allContainers.forEach(el => el.style.display = 'none');
-    
-    // إخفاء أي عناصر أخرى داخل صندوق النتائج عدا الـ CV نفسه
-    const resultBox = document.getElementById('resultBox');
-    if (resultBox) {
-        resultBox.style.padding = '0';
-        resultBox.style.margin = '0';
+    const fullName = document.getElementById('fullName').value.trim() || "CV";
+    const originalBtnText = document.getElementById('downloadPdfBtn').innerText;
+    document.getElementById('downloadPdfBtn').innerText = "⏳ جاري التنزيل...";
+
+    const executeDirectDownload = () => {
+        const options = {
+            margin:       [10, 10, 10, 10],
+            filename:     `${fullName}_Resume.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { 
+                scale: 2, 
+                useCORS: true, 
+                logging: false,
+                letterRendering: true,
+                scrollX: 0,
+                scrollY: 0
+            },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // معالجة تدفق الوعاء الحاوي لضمان رندرة النصوص بالكامل والتنزيل المباشر كملف
+        html2pdf().set(options).from(cvElement).toPdf().get('pdf').save().then(() => {
+            document.getElementById('downloadPdfBtn').innerText = originalBtnText;
+        }).catch((err) => {
+            console.error(err);
+            document.getElementById('downloadPdfBtn').innerText = originalBtnText;
+        });
+    };
+
+    // التحقق الفوري والديناميكي من وجود سكريبت المكتبة
+    if (typeof html2pdf === 'undefined') {
+        const script = document.createElement('script');
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+        script.onload = executeDirectDownload;
+        script.onerror = () => {
+            document.getElementById('downloadPdfBtn').innerText = originalBtnText;
+            alert("فشل جلب أداة التنزيل المباشر، تأكد من اتصالك بالإنترنت.");
+        };
+        document.head.appendChild(script);
+    } else {
+        executeDirectDownload();
     }
-
-    // إنشاء استايل طباعة صارم يجبر المتصفح على رؤية الـ CV فقط بأبعاد كاملة وبشكل نقي
-    const printStyle = document.createElement('style');
-    printStyle.id = 'cv-print-style';
-    printStyle.innerHTML = `
-        @media print {
-            html, body {
-                background: #ffffff !important;
-                color: #000000 !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            body * {
-                display: none !important;
-            }
-            #resultBox, #cvTemplateArea, #cvTemplateArea * {
-                display: block !important;
-                visibility: visible !important;
-            }
-            #cvTemplateArea {
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                box-shadow: none !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-        }
-    `;
-    document.head.appendChild(printStyle);
-
-    // استدعاء أمر الطباعة بعد مهلة قصيرة لضمان استقرار المتصفح
-    setTimeout(() => {
-        window.print();
-
-        // إعادة إظهار واجهة التطبيق كاملة للمستخدم بعد إغلاق نافذة الطباعة
-        allContainers.forEach(el => el.style.display = '');
-        const styleEl = document.getElementById('cv-print-style');
-        if (styleEl) styleEl.remove();
-    }, 250);
 });
 
 // حدث تحسين السيرة الذاتية
@@ -357,7 +346,7 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
     }
 
     let promptMessage = selectedLang === 'ar' ? 
-        `قم بصياغة سيرة ذاتية احترافية وموجزة باللغة العربية للشخص التالي:\nالاسم: ${fullName}\nالوظيفة: ${jobTitle}\nالخبرات: ${experience || 'مبتدئ'}\nالمهارات: ${skills || 'تواصل'}\n\nشروط صارمة: أسلوب بشري، نقاط واضحة (•)، أفعاف حركة قوية، وقم بإجراء تدقيق لغوي وإملائي كامل وتصحيح كافة الأخطاء النحوية واللغوية بصرامة.` :
+        `قم بصياغة سيرة ذاتية احترافية وموجزة باللغة العربية للشخص التالي:\nالاسم: ${fullName}\nالوظيفة: ${jobTitle}\nالخبرات: ${experience || 'مبتدئ'}\nالمهارات: ${skills || 'تواصل'}\n\nشروط صارمة: أسلوب بشري، نقاط واضحة (•)، أفعال حركة قوية، وقم بإجراء تدقيق لغوي وإملائي كامل وتصحيح كافة الأخطاء النحوية واللغوية بصرامة.` :
         `Create a professional resume in English for:\nName: ${fullName}\nJob: ${jobTitle}\nExperience: ${experience || 'Entry-level'}\nSkills: ${skills || 'Communication'}\n\nStrict Rules: Human style, bullet points (•), and absolute proofreading to ensure zero spelling or grammatical errors.`;
 
     const systemMessage = selectedLang === 'ar' ? 
