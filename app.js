@@ -243,9 +243,13 @@ function generateCVQRCode(containerId, textToEncode) {
 }
 
 // ==========================================
-// 📄 🔥 ميزة 3: التنزيل المباشر الفوري كملف PDF (دون فتح نافذة الطباعة وبأعلى استقرار)
+// 📄 🔥 ميزة 3: التنزيل المباشر الفوري كملف PDF (منع قاطع لصفحة الطباعة)
 // ==========================================
-document.getElementById('downloadPdfBtn').addEventListener('click', () => {
+document.getElementById('downloadPdfBtn').addEventListener('click', (e) => {
+    // إيقاف السلوكات والانتشار التلقائي للأحداث تماماً لمنع فتح واجهة طباعة المتصفح
+    e.preventDefault();
+    e.stopPropagation();
+
     const cvElement = document.getElementById('cvTemplateArea');
     if (!cvElement || cvElement.innerText.trim() === "") {
         alert("الرجاء توليد السيرة الذاتية أولاً قبل التحميل!");
@@ -259,7 +263,7 @@ document.getElementById('downloadPdfBtn').addEventListener('click', () => {
 
     const fullName = document.getElementById('fullName').value.trim() || "CV";
     const originalBtnText = document.getElementById('downloadPdfBtn').innerText;
-    document.getElementById('downloadPdfBtn').innerText = "⏳ جاري التنزيل...";
+    document.getElementById('downloadPdfBtn').innerText = "⏳ جاري التنزيل المباشر...";
 
     const executeDirectDownload = () => {
         const options = {
@@ -277,16 +281,17 @@ document.getElementById('downloadPdfBtn').addEventListener('click', () => {
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // معالجة تدفق الوعاء الحاوي لضمان رندرة النصوص بالكامل والتنزيل المباشر كملف
-        html2pdf().set(options).from(cvElement).toPdf().get('pdf').save().then(() => {
+        // التنزيل الفوري المباشر لجهاز المستخدم دون استدعاء مخرجات الطباعة الافتراضية
+        html2pdf().set(options).from(cvElement).save().then(() => {
             document.getElementById('downloadPdfBtn').innerText = originalBtnText;
+            document.getElementById('downloadOptions').classList.add('hidden');
         }).catch((err) => {
             console.error(err);
             document.getElementById('downloadPdfBtn').innerText = originalBtnText;
         });
     };
 
-    // التحقق الفوري والديناميكي من وجود سكريبت المكتبة
+    // جلب المكتبة تلقائياً إذا لم تكن مضافة في الـ HTML لضمان عملها فوراً
     if (typeof html2pdf === 'undefined') {
         const script = document.createElement('script');
         script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
