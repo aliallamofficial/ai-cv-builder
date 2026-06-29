@@ -182,13 +182,26 @@ async function askAI(promptMessage, systemMessage, retries = 3) {
     }
 }
 
-// دالة تحويل الـ Markdown
+// ==========================================
+// ✨ دالة تحويل الـ Markdown مع تنظيف دقيق للنصوص الإعلانية والترويجية لـ Pollinations
+// ==========================================
 function formatMarkdown(text) {
     if (!text) return '';
-    return text
+
+    // تصفية وحذف الجمل والروابط التي يضيفها السيرفر المجاني تلقائياً في النهاية
+    let cleanedText = text
+        .replace(/Powered by Pollinations\.AI.*/gi, '')
+        .replace(/.*Support our mission.*/gi, '')
+        .replace(/.*accessible for everyone.*/gi, '')
+        .replace(/🌸\s*Ad\s*🌸/gi, '')
+        .replace(/Pollinations\.AI:/gi, '');
+
+    // تطبيق وسوم HTML المعتادة على النص النظيف
+    return cleanedText
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
         .replace(/\*(.*?)\*/g, '<em>$1</em>')          
-        .replace(/\n/g, '<br>');                        
+        .replace(/\n/g, '<br>')
+        .trim();
 }
 
 // دالة لتطبيق ثيم القوالب
