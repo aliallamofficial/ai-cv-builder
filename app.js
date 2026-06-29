@@ -224,6 +224,60 @@ function generateCVQRCode(containerId, textToEncode) {
     }
 }
 
+// ==========================================
+// 📄 🔥 ميزة 3: تحميل مباشر بصيغة PDF حقيقية عبر حقن مكتبة html2pdf ديناميكياً
+// ==========================================
+document.getElementById('downloadPdfBtn').addEventListener('click', () => {
+    const cvElement = document.getElementById('cvTemplateArea');
+    if (!cvElement || cvElement.innerText.trim() === "") {
+        alert("الرجاء توليد السيرة الذاتية أولاً قبل التحميل!");
+        return;
+    }
+
+    // حقن التوقيع الرقمي ومفتاح الـ GPG إن لم يكن متواجداً
+    let currentHtml = cvElement.innerHTML;
+    if (!currentHtml.includes('cv-crypto-footer')) {
+        cvElement.innerHTML = appendCryptoSignatureToCV(currentHtml);
+    }
+
+    const fullName = document.getElementById('fullName').value.trim() || "CV";
+    const originalBtnText = document.getElementById('downloadPdfBtn').innerText;
+    document.getElementById('downloadPdfBtn').innerText = "⏳ جاري التجهيز...";
+
+    // دالة التوليد والحفظ الفوري للـ PDF
+    const startPdfGeneration = () => {
+        const options = {
+            margin:       [10, 10, 10, 10],
+            filename:     `${fullName}_Resume.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(options).from(cvElement).save().then(() => {
+            document.getElementById('downloadPdfBtn').innerText = originalBtnText;
+        }).catch((err) => {
+            console.error("خطأ أثناء توليد الـ PDF:", err);
+            alert("حدث خطأ أثناء التصدير المباشر.");
+            document.getElementById('downloadPdfBtn').innerText = originalBtnText;
+        });
+    };
+
+    // التأكد من تحميل مكتبة html2pdf.js ديناميكياً لتجنب تعديل الـ HTML يدوياً
+    if (typeof html2pdf === 'undefined') {
+        const script = document.createElement('script');
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+        script.onload = startPdfGeneration;
+        script.onerror = () => {
+            alert("فشل تحميل محرك الـ PDF، يرجى التحقق من اتصال الإنترنت.");
+            document.getElementById('downloadPdfBtn').innerText = originalBtnText;
+        };
+        document.head.appendChild(script);
+    } else {
+        startPdfGeneration();
+    }
+});
+
 // حدث تحسين السيرة الذاتية
 document.getElementById('optimizeBtn').addEventListener('click', async () => {
     const btn = document.getElementById('optimizeBtn');
@@ -340,333 +394,43 @@ document.getElementById('coverLetterBtn').addEventListener('click', async () => 
     }
 });
 
-// 📊 ميزة تقييم السيرة الذاتية (Resume Scoring)
-document.getElementById('rateBtn').addEventListener('click', async () => {
-    const btn = document.getElementById('rateBtn');
-    const fullName = document.getElementById('fullName').value.trim();
-    const jobTitle = document.getElementById('jobTitle').value.trim();
-    const experience = document.getElementById('experience').value.trim();
-    const skills = document.getElementById('skills').value.trim();
-    const selectedLang = document.getElementById('langSelect').value;
-
-    if (!fullName || !jobTitle) {
-        alert(selectedLang === 'ar' ? 'رجاءً أدخل الاسم والمسمى الوظيفي أولاً ليتم التقييم بناءً عليهما!' : 'Please enter Name and Job Title first!');
-        return;
+// تهيئة الأدوات عند تحميل الصفحة والنافذة المنبثقة بشكل فوري
+document.addEventListener('DOMContentLoaded', () => {
+    // إزالة السكرين سبلاش بعد التجهيز
+    const splash = document.getElementById('splash-screen');
+    if(splash) {
+        setTimeout(() => {
+            splash.style.opacity = '0';
+            setTimeout(() => splash.remove(), 500);
+        }, 1000);
     }
-
-    const loading = document.getElementById('loading');
-    const resultBox = document.getElementById('resultBox');
-
-    btn.disabled = true;
-    loading.classList.remove('hidden');
-
-    let promptMessage = `قم بتحليل وتقييم البيانات المدخلة للسيرة الذاتية التالية وإعطاء تقييم من 100%:\nالاسم: ${fullName}\nالمسمى المستهدف: ${jobTitle}\nالخبرات: ${experience}\nالمهارات: ${skills}`;
-
-    try {
-        const aiResult = await askAI(promptMessage, "أنت مسؤول توظيف خبير ومدقق سير ذاتية صارم.");
-        if (aiResult) {
-            let formattedRating = formatMarkdown(aiResult);
-            resultBox.innerHTML = `<div style="padding:20px; background:#1e293b; color:#fff; text-align:right; direction:rtl; border-radius:8px; line-height:1.8;"><h3>📊 تقييم السيرة الذاتية الذكي:</h3><br>${formattedRating}</div>`;
-        }
-    } catch (error) {
-        resultBox.innerHTML = `<p style="color:red;">تعذر الاتصال بخادم التقييم.</p>`;
-    } finally { 
-        loading.classList.add('hidden'); 
-        btn.disabled = false;
-    }
-});
-
-// 🔍 ميزة فحص التوافق العالمي ATS Shadow Checker
-document.getElementById('atsCheckBtn').addEventListener('click', async () => {
-    const btn = document.getElementById('atsCheckBtn');
-    const cvArea = document.getElementById('cvTemplateArea');
-    if (!cvArea) return;
-
-    const loading = document.getElementById('loading');
-    const resultBox = document.getElementById('resultBox');
     
-    btn.disabled = true;
-    loading.classList.remove('hidden');
-
-    let promptMessage = `تظاهر بأنك نظام فحص السير الذاتية العالمي ATS. قم بقراءة وفحص النص التالي ومقارنته بالمسمى المستهدف لتحديد مدى استجابته للخوارزميات:\n\n${cvArea.innerText}`;
-
-    try {
-        const aiResult = await askAI(promptMessage, "أنت روبوت ونظام تصفية وفرز آلي ATS عالمي تفحص الكلمات الدلالية.");
-        if (aiResult) {
-            let formattedAts = formatMarkdown(aiResult);
-            resultBox.innerHTML = `<div class="ats-report" style="padding:20px; background:rgba(15,23,42,0.9); border:1px solid #38bdf8; color:#f8fafc; border-radius:12px; direction:rtl; text-align:right; line-height:1.8;"><h3>🔍 تقرير محاكاة نظام الفرز العالمي ATS:</h3><br>${formattedAts}</div>`;
-        }
-    } catch (e) {
-        alert("فشل فحص الـ ATS حالياً.");
-    } finally { 
-        loading.classList.add('hidden'); 
-        btn.disabled = false;
-    }
-});
-
-// 🔐 ميزة التوقيع والتشفير الرقمي GPG الرقمي للمستند
-document.getElementById('signCvBtn').addEventListener('click', () => {
-    const cvArea = document.getElementById('cvTemplateArea');
-    if (!cvArea) return;
-
-    const randomHash = 'SHA256:' + Math.random().toString(16).substring(2, 10).toUpperCase() + '...' + Math.random().toString(16).substring(2, 8).toUpperCase();
-    const badgeHtml = `<div class="crypto-badge" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #10b981; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 15px; font-family:monospace; direction:ltr;">🔐 SIGNED BY @aliallamofficial [GPG: 55392380FBF1C8F1] | ${randomHash}</div>`;
+    // تشغيل ميزات الواجهة الأساسية
+    initCVScoreGauge();
+    initThemeColorPicker();
     
-    const currentContent = cvArea.innerHTML;
-    if(!currentContent.includes('SIGNED BY')) {
-        cvArea.innerHTML = badgeHtml + currentContent;
-        alert('تم توقيع السيرة الذاتية رقمياً بنجاح!');
-    }
-});
-
-// 📥 إدارة قائمة التحميل
-document.getElementById('mainDownloadBtn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    document.getElementById('downloadOptions').classList.toggle('hidden');
-});
-
-document.addEventListener('click', () => {
-    const options = document.getElementById('downloadOptions');
-    if(options) options.classList.add('hidden');
-});
-
-// 📄 🔥 ميزة 3: خيار طباعة وتحميل متقدم ومتوافق بالكامل مع الهوية الملونة
-document.getElementById('downloadPdfBtn').addEventListener('click', () => {
-    const cvElement = document.getElementById('cvTemplateArea');
-    if (!cvElement || cvElement.innerText.trim() === "") return;
-
-    let currentHtml = cvElement.innerHTML;
-    if (!currentHtml.includes('cv-crypto-footer')) {
-        currentHtml = appendCryptoSignatureToCV(currentHtml);
+    // تشغيل الهيدر المنسدل للإعدادات
+    const dropBtn = document.getElementById('dropdownToggleBtn');
+    const menu = document.getElementById('topLeftMenu');
+    if (dropBtn && menu) {
+        dropBtn.addEventListener('click', () => menu.classList.toggle('hidden'));
     }
 
-    const printWindow = window.open('', '_blank', 'width=800,height=900');
-    const isEn = cvElement.style.textAlign === 'left';
-    const direction = isEn ? 'ltr' : 'rtl';
-    const activeColor = localStorage.getItem('cv_theme_color') || '#3b82f6';
+    // فتح وغلق مودال الإعدادات
+    const openSettings = document.getElementById('openSettingsBtn');
+    const closeSettings = document.getElementById('closeSettingsBtn');
+    const modal = document.getElementById('settingsPageModal');
+    if(openSettings && modal) openSettings.addEventListener('click', () => { modal.classList.remove('hidden'); menu.classList.add('hidden'); });
+    if(closeSettings && modal) closeSettings.addEventListener('click', () => modal.classList.add('hidden'));
 
-    printWindow.document.write(`
-        <!DOCTYPE html>
-        <html dir="${direction}">
-        <head>
-            <title>المستند الموثق</title>
-            <style>
-                body { font-family: Arial, sans-serif; padding: 40px; background: #ffffff; color: #000000; line-height: 1.8; font-size: 15px;}
-                strong { font-weight: bold; color: #000000; }
-                .crypto-badge { display: inline-block !important; margin-bottom:15px; color:${activeColor}; }
-                @media print { body { padding: 0; } @page { margin: 2cm; } }
-            </style>
-        </head>
-        <body>
-            <div>${currentHtml}</div>
-            <script>
-                window.onload = function() { window.print(); setTimeout(function() { window.close(); }, 500); };
-            </script>
-        </body>
-        </html>
-    `);
-    printWindow.document.close();
-});
-
-// 📄 خيار تحميل السيرة الذاتية بصيغة Word
-document.getElementById('downloadWordBtn').addEventListener('click', () => {
-    const cvElement = document.getElementById('cvTemplateArea');
-    if (!cvElement) return;
-
-    let cvContentText = cvElement.innerText;
-    const wordSignature = `\n\n=========================================\n🔒 Digitally Signed via AI CV Optimizer\nAuthority Key: @aliallamofficial [GPG: 55392380FBF1C8F1]\n=========================================`;
-    const fullWordContent = cvContentText + wordSignature;
-    const wordUrl = 'data:application/msword;charset=utf-8,\ufeff' + encodeURIComponent(fullWordContent);
-
-    const a = document.createElement('a');
-    a.href = wordUrl;
-    a.download = 'المستند.doc';
-    a.click();
-});
-
-// ==========================================
-// 🔄 دالة الفحص التلقائي لآخر تعديل للملفات
-// ==========================================
-async function checkAutomatedUpdates() {
-    if (!navigator.onLine) return;
-    try {
-        const response = await fetch(window.location.href, { method: 'HEAD', cache: 'no-cache' });
-        const lastModifiedHeader = response.headers.get('Last-Modified') || response.headers.get('ETag');
-        
-        if (lastModifiedHeader) {
-            const savedBuildTag = localStorage.getItem('app_last_build_tag');
-            
-            if (savedBuildTag && savedBuildTag !== lastModifiedHeader) {
-                if ("Notification" in window && Notification.permission === "granted") {
-                    new Notification("🚀 تم تحديث التطبيق تلقائياً!", {
-                        body: "هناك ميزات وتحسينات جديدة تمت إضافتها للتطبيق، ألقِ نظرة عليها الآن."
-                    });
-                }
-                setTimeout(() => {
-                    alert("✨ تحديث تلقائي سحري:\nتم رصد تعديلات برمجية وتحسينات جديدة في النظام لزيادة سرعة الذكاء الاصطناعي وتطوير المظهر!");
-                }, 3000);
-            }
-            localStorage.setItem('app_last_build_tag', lastModifiedHeader);
-        }
-    } catch (e) { console.log("خطأ في جلب تاريخ التحديث التلقائي"); }
-}
-
-// ==========================================
-// ⚙️ إدارة القائمة والتهيئة العامة عند التحميل
-// ==========================================
-window.addEventListener('DOMContentLoaded', () => {
-    // تشغيل الميزات الجديدة تلقائياً عند التهيئة
-    setTimeout(() => {
-        initCVScoreGauge();
-        initThemeColorPicker();
-    }, 100);
-
-    const tipElement = document.getElementById('liveTipText');
-    if (tipElement) {
-        tipElement.innerText = cvTips[Math.floor(Math.random() * cvTips.length)];
-    }
-
-    const dropdownToggleBtn = document.getElementById('dropdownToggleBtn');
-    const topLeftMenu = document.getElementById('topLeftMenu');
-    if (dropdownToggleBtn && topLeftMenu) {
-        dropdownToggleBtn.addEventListener('click', (e) => {
+    // قائمة التحميل المنسدلة الفرعية
+    const mainDown = document.getElementById('mainDownloadBtn');
+    const downOpts = document.getElementById('downloadOptions');
+    if(mainDown && downOpts) {
+        mainDown.addEventListener('click', (e) => {
             e.stopPropagation();
-            topLeftMenu.classList.toggle('hidden');
+            downOpts.classList.toggle('hidden');
         });
-
-        document.addEventListener('click', (e) => {
-            if (!topLeftMenu.contains(e.target) && e.target !== dropdownToggleBtn) {
-                topLeftMenu.classList.add('hidden');
-            }
-        });
+        document.addEventListener('click', () => downOpts.classList.add('hidden'));
     }
-
-    const openSettingsBtn = document.getElementById('openSettingsBtn');
-    const settingsPageModal = document.getElementById('settingsPageModal');
-    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-
-    if (openSettingsBtn && settingsPageModal) {
-        openSettingsBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (topLeftMenu) topLeftMenu.classList.add('hidden'); 
-            settingsPageModal.classList.remove('hidden'); 
-        });
-    }
-
-    if (closeSettingsBtn && settingsPageModal) {
-        closeSettingsBtn.addEventListener('click', () => {
-            settingsPageModal.classList.add('hidden'); 
-        });
-
-        settingsPageModal.addEventListener('click', (e) => {
-            if (e.target === settingsPageModal) {
-                settingsPageModal.classList.add('hidden'); 
-            }
-        });
-    }
-
-    const privacyPolicyBtn = document.getElementById('privacyPolicyBtn') || document.getElementById('privacyPolicyLink');
-    if (privacyPolicyBtn) {
-        privacyPolicyBtn.addEventListener('click', (e) => {
-            e.preventDefault(); 
-            window.open('https://wp.me/Phj9fM-E', '_blank'); 
-        });
-    }
-
-    const enableNotificationsBtn = document.getElementById('enableNotificationsBtn');
-    if (enableNotificationsBtn) {
-        enableNotificationsBtn.addEventListener('click', () => {
-            if (!("Notification" in window)) {
-                alert("متصفحك الحالي لا يدعم إشعارات الويب.");
-                return;
-            }
-            Notification.requestPermission().then(permission => {
-                if (permission === "granted") {
-                    alert("🎯 تم تفعيل الإشعارات بنجاح! ستصلك تنبيهات تلقائية عند إضافة أي تحديث.");
-                    new Notification("🚀 نظام الإشعارات نشط", {
-                        body: "تم ربط التطبيق بنظام التنبيهات الذكي بنجاح."
-                    });
-                } else {
-                    alert("لم يتم تفعيل الإذن. يمكنك تفعيله يدوياً من إعدادات المتصفح علوياً.");
-                }
-            });
-        });
-    }
-
-    checkAutomatedUpdates();
-
-    const tourSteps = [
-        {
-            icon: "🚀",
-            title: "مرحباً بك في مستقبلك المهني!",
-            desc: "دعنا نأخذك في جولة سريعة مدتها دقيقة واحدة للتعرف على كيفية صناعة سيرة ذاتية لا تقهر بالذكاء الاصطناعي.",
-            btnText: "ابدأ الرحلة الآن ←"
-        },
-        {
-            icon: "📝",
-            title: "عبّئ بياناتك الأساسية بدقة",
-            desc: "قم بملء حقول اسمك، المسمى المستهدف، وخبراتك السابقة. خوارزميتنا ستقرأها وتصيغها بأسلوب احترافي جذاب.",
-            btnText: "الخطوة التالية ⚡"
-        },
-        {
-            icon: "🔍",
-            title: "تجاوز فحص أنظمة الـ ATS",
-            desc: "استخدم زر 'محاكاة فحص ATS' بعد توليد النص للتأكد من مطابقة سيرتك الذاتية مع معايير الروبوتات وأنظمة التوظيف العالمية.",
-            btnText: "فهمت، جاهز للانطلاق! 🎉"
-        }
-    ];
-
-    let currentStep = 0;
-    const tourModal = document.getElementById("appTourModal");
-    const tourProgress = document.getElementById("tourProgress");
-    const tourIcon = document.getElementById("tourIcon");
-    const tourTitle = document.getElementById("tourTitle");
-    const tourDescription = document.getElementById("tourDescription");
-    const nextTourBtn = document.getElementById("nextTourBtn");
-    const skipTourBtn = document.getElementById("skipTourBtn");
-
-    function updateTourDOM() {
-        const stepData = tourSteps[currentStep];
-        if (tourProgress) tourProgress.innerText = `خطوة ${currentStep + 1} من ${tourSteps.length}`;
-        if (tourIcon) tourIcon.innerText = stepData.icon;
-        if (tourTitle) tourTitle.innerText = stepData.title;
-        if (tourDescription) tourDescription.innerText = stepData.desc;
-        if (nextTourBtn) nextTourBtn.innerText = stepData.btnText;
-    }
-
-    function finishTour() {
-        if (tourModal) tourModal.classList.add("hidden");
-        localStorage.setItem("ali_cv_tour_completed", "true");
-    }
-
-    if (nextTourBtn) {
-        nextTourBtn.addEventListener("click", () => {
-            if (currentStep < tourSteps.length - 1) {
-                currentStep++;
-                updateTourDOM();
-            } else {
-                finishTour();
-            }
-        });
-    }
-
-    if (skipTourBtn) {
-        skipTourBtn.addEventListener("click", finishTour);
-    }
-
-    setTimeout(() => {
-        const splash = document.getElementById('splash-screen');
-        if (splash) {
-            splash.style.opacity = '0'; 
-            setTimeout(() => { 
-                splash.remove(); 
-                
-                const isTourCompleted = localStorage.getItem("ali_cv_tour_completed");
-                if (!isTourCompleted && tourModal) {
-                    tourModal.classList.remove("hidden");
-                    updateTourDOM();
-                }
-            }, 500);
-        }
-    }, 2000);
 });
