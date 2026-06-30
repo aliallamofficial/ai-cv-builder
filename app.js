@@ -45,15 +45,11 @@ const tourSteps = [
 let currentTourStep = 0;
 
 function initAppTour() {
-    // التحقق مما إذا كان المستخدم قد شاهد الجولة مسبقاً
     if (localStorage.getItem('cv_tour_completed') === 'true') return;
-
     const tourModal = document.getElementById('appTourModal');
     if (!tourModal) return;
 
-    // إظهار نافذة الجولة
     tourModal.classList.remove('hidden');
-
     const nextBtn = document.getElementById('nextTourBtn');
     const skipBtn = document.getElementById('skipTourBtn');
 
@@ -67,15 +63,11 @@ function initAppTour() {
             }
         });
     }
-
-    if (skipBtn) {
-        skipBtn.addEventListener('click', closeTour);
-    }
+    if (skipBtn) skipBtn.addEventListener('click', closeTour);
 }
 
 function updateTourContent() {
     const stepData = tourSteps[currentTourStep];
-    
     const progress = document.getElementById('tourProgress');
     const icon = document.getElementById('tourIcon');
     const title = document.getElementById('tourTitle');
@@ -92,7 +84,6 @@ function updateTourContent() {
 function closeTour() {
     const tourModal = document.getElementById('appTourModal');
     if (tourModal) tourModal.classList.add('hidden');
-    // حفظ في المتصفح لعدم الإزعاج مجدداً
     localStorage.setItem('cv_tour_completed', 'true');
 }
 
@@ -105,14 +96,7 @@ function initCVScoreGauge() {
 
     const gaugeContainer = document.createElement('div');
     gaugeContainer.id = 'cvScoreContainer';
-    gaugeContainer.style.cssText = `
-        background: #0f172a;
-        border: 1px solid #334155;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        transition: all 0.3s ease;
-    `;
+    gaugeContainer.style.cssText = `background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 8px; margin-bottom: 20px; transition: all 0.3s ease;`;
 
     gaugeContainer.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -175,6 +159,100 @@ function calculateCVScore() {
 }
 
 // ==========================================
+// 🚀 ميزة تنافسية جديدة: مساعد الصياغة الذكي المباشر للحقول (Inline AI Writer)
+// ==========================================
+function initInlineAIWriters() {
+    const fields = ['experience', 'skills'];
+    fields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (!field || field.parentElement.querySelector('.inline-ai-btn')) return;
+
+        const aiBtn = document.createElement('button');
+        aiBtn.className = 'inline-ai-btn';
+        aiBtn.innerText = '🪄 تحسين الصياغة ذكياً';
+        aiBtn.style.cssText = 'margin-top: 5px; padding: 5px 10px; background: #1e293b; border: 1px solid #38bdf8; color: #38bdf8; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; transition: all 0.2s;';
+        
+        aiBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const textValue = field.value.trim();
+            if (!textValue) { alert('الرجاء كتابة نص أولاً ليقوم الذكاء الاصطناعي بتحسينه!'); return; }
+            
+            aiBtn.innerText = '⏳ جاري الصياغة...';
+            aiBtn.disabled = true;
+            try {
+                const optimized = await askAI(`قم بإعادة صياغة هذا النص المهني لجعله أكثر احترافية وقوة ومناسباً لأنظمة الـ ATS في نقاط واضحة ومباشرة: ${textValue}`, "أنت مستشار HR خبير تعيد صياغة العبارات بأسلوب قوي ومقنع.");
+                if (optimized) field.value = optimized.trim();
+            } catch (err) {
+                alert('عذراً، الخادم مشغول حالياً. حاول مجدداً.');
+            } finally {
+                aiBtn.innerText = '🪄 تحسين الصياغة ذكياً';
+                aiBtn.disabled = false;
+                calculateCVScore();
+            }
+        });
+        field.parentElement.appendChild(aiBtn);
+    });
+}
+
+// ==========================================
+// 🚀 ميزة تنافسية جديدة: مقارن وفاحص الكلمات المفتاحية (Job Description Matcher)
+// ==========================================
+function initJobDescriptionMatcher() {
+    const inputSection = document.querySelector('.input-section');
+    if (!inputSection || document.getElementById('jdMatcherSection')) return;
+
+    const jdCard = document.createElement('div');
+    jdCard.id = 'jdMatcherSection';
+    jdCard.style.cssText = 'background: #1e293b; border: 1px dashed #475569; padding: 15px; border-radius: 8px; margin-bottom: 20px;';
+    jdCard.innerHTML = `
+        <label style="display: block; color: #cbd5e1; font-weight: bold; font-size: 14px; margin-bottom: 6px;">🎯 مطابقة الكلمات المفتاحية (إعلان الوظيفة المستهدفة):</label>
+        <textarea id="jobDescriptionInput" rows="3" placeholder="انسخ نص إعلان الوظيفة أو المتطلبات هنا ليقوم النظام بمقارنتها واستخراج النقص فوراً..." style="width: 100%; padding: 10px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #fff; box-sizing: border-box; font-size: 13px; resize: vertical;"></textarea>
+    `;
+    // حقنها قبل أزرار التحكم والإنشاء الإجمالية
+    inputSection.insertBefore(jdCard, inputSection.lastElementChild);
+}
+
+// ==========================================
+// 🚀 ميزة تنافسية جديدة: محاكي المقابلات الشخصية (AI Interview Prep)
+// ==========================================
+function initAIInterviewPrep() {
+    const actionGrid = document.querySelector('.input-section grid, .input-section > div:last-child > div');
+    if (!actionGrid || document.getElementById('interviewPrepBtn')) return;
+
+    const interviewBtn = document.createElement('button');
+    interviewBtn.id = 'interviewPrepBtn';
+    interviewBtn.innerText = '🧠 أسئلة المقابلة المتوقعة';
+    interviewBtn.style.cssText = 'padding: 10px; border: 1px solid #a855f7; border-radius: 6px; background: rgba(168,85,247,0.1); color: #a855f7; cursor: pointer; font-weight: bold;';
+    
+    interviewBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const jobTitle = document.getElementById('jobTitle').value.trim();
+        if (!jobTitle) { alert('يرجى كتابة المسمى الوظيفي المستهدف أولاً لتوليد الأسئلة المناسبة!'); return; }
+
+        const loading = document.getElementById('loading');
+        const resultBox = document.getElementById('resultBox');
+        interviewBtn.disabled = true;
+        loading.classList.remove('hidden');
+
+        try {
+            const qaResult = await askAI(`أعطني أهم 5 أسئلة متوقعة في المقابلات الشخصية لوظيفة: ${jobTitle} مع الإجابات النموذجية والمختصرة جداً لكل سؤال باللغة العربية.`, "أنت مسؤول التوظيف التقني الخبير.");
+            if (qaResult) {
+                let formattedQA = formatMarkdown(qaResult);
+                let templateStyles = getTemplateStyles(document.getElementById('langSelect').value, 'modern');
+                resultBox.innerHTML = `<div id="cvTemplateArea" style="${templateStyles}"><h3>🧠 الأسئلة المتوقعة في المقابلة والإجابات النموذجية:</h3><br>${formattedQA}</div>`;
+                document.getElementById('downloadContainer').classList.add('hidden');
+            }
+        } catch (err) {
+            alert('السيرفر مشغول حالياً بالمعالجة، أعد النقر بعد قليل.');
+        } finally {
+            loading.classList.add('hidden');
+            interviewBtn.disabled = false;
+        }
+    });
+    actionGrid.appendChild(interviewBtn);
+}
+
+// ==========================================
 // 🔥 ميزة 2: نظام تخصيص الثيم الملون التفاعلي (Dynamic Color Picker)
 // ==========================================
 function initThemeColorPicker() {
@@ -217,7 +295,6 @@ function applyThemeColorToLiveCV() {
 function handleCVCreation() {
     const maxAllowedPerDay = 5; 
     const today = new Date().toDateString(); 
-    
     let savedDate = localStorage.getItem('cv_creation_date');
     let creationCount = parseInt(localStorage.getItem('cv_creation_count')) || 0;
 
@@ -231,7 +308,6 @@ function handleCVCreation() {
         alert("عذراً، لقد وصلت للحد الأقصى المسموح به اليوم (5 مرات). يمكنك المحاولة مجدداً غداً!");
         return false;
     }
-
     creationCount += 1;
     localStorage.setItem('cv_creation_count', creationCount);
     return true;
@@ -274,7 +350,6 @@ async function askAI(promptMessage, systemMessage, retries = 3) {
 // ==========================================
 function formatMarkdown(text) {
     if (!text) return '';
-
     let cleanedText = text
         .replace(/Powered by Pollinations\.AI.*/gi, '')
         .replace(/.*Support our mission.*/gi, '')
@@ -439,13 +514,14 @@ document.getElementById('downloadWordBtn').addEventListener('click', (e) => {
     document.getElementById('downloadOptions').classList.add('hidden');
 });
 
-// حدث تحسين السيرة الذاتية
+// حدث تحسين السيرة الذاتية الأساسي والمطوّر
 document.getElementById('optimizeBtn').addEventListener('click', async () => {
     const btn = document.getElementById('optimizeBtn');
     const fullName = document.getElementById('fullName').value.trim();
     const jobTitle = document.getElementById('jobTitle').value.trim();
     const experience = document.getElementById('experience').value.trim();
     const skills = document.getElementById('skills').value.trim();
+    const jdText = document.getElementById('jobDescriptionInput')?.value.trim() || "";
     const selectedLang = document.getElementById('langSelect').value;
     const selectedTemplate = document.getElementById('templateSelect').value;
 
@@ -483,13 +559,18 @@ document.getElementById('optimizeBtn').addEventListener('click', async () => {
         return; 
     }
 
+    // صياغة البرومبت الذكي ليشمل فحص إعلان الوظيفة ومطابقة الكلمات المفتاحية إذا وُجد
     let promptMessage = selectedLang === 'ar' ? 
-        `قم بصياغة سيرة ذاتية احترافية وموجزة باللغة العربية للشخص التالي:\nالاسم: ${fullName}\nالوظيفة: ${jobTitle}\nالخبرات: ${experience || 'مبتدئ'}\nالمهارات: ${skills || 'تواصل'}\n\nشروط صارمة: أسلوب بشري، نقاط واضحة (•)، أفعال حركة قوية، وقم بإجراء تدقيق لغوي وإملائي كامل وتصحيح كافة الأخطاء النحوية واللغوية بصرامة.` :
-        `Create a professional resume in English for:\nName: ${fullName}\nJob: ${jobTitle}\nExperience: ${experience || 'Entry-level'}\nSkills: ${skills || 'Communication'}\n\nStrict Rules: Human style, bullet points (•), and absolute proofreading to ensure zero spelling or grammatical errors.`;
+        `قم بصياغة سيرة ذاتية احترافية وموجزة باللغة العربية للشخص التالي:\nالاسم: ${fullName}\nالوظيفة: ${jobTitle}\nالخبرات: ${experience || 'مبتدئ'}\nالمهارات: ${skills || 'تواصل'}\n\n` +
+        (jdText ? `إعلان الوظيفة المستهدفة: ${jdText}\nشروط إضافية: قم بمطابقة السيرة الذاتية مع هذا الإعلان بذكاء ودمج الكلمات المفتاحية الأساسية المطلوبة فيه لضمان تخطي فحص الـ ATS بدقة شديدة.\n\n` : "") +
+        `شروط صارمة: أسلوب بشري، نقاط واضحة (•)، أفعال حركة قوية، وقم بإجراء تدقيق لغوي وإملائي كامل وتصحيح كافة الأخطاء النحوية واللغوية بصرامة.` :
+        `Create a professional resume in English for:\nName: ${fullName}\nJob: ${jobTitle}\nExperience: ${experience || 'Entry-level'}\nSkills: ${skills || 'Communication'}\n\n` +
+        (jdText ? `Target Job Description: ${jdText}\nAdditional rules: Align the resume dynamically with this job description. Incorporate key technical and soft keywords from it to ensure flawless ATS compliance.\n\n` : "") +
+        `Strict Rules: Human style, bullet points (•), and absolute proofreading to ensure zero spelling or grammatical errors.`;
 
     const systemMessage = selectedLang === 'ar' ? 
-        "أنت مستشار توظيف خبير ومدقق لغوي صارم (HR & Proofreader Consultant). تكتب سير ذاتية بليغة خالية تماماً من الأخطاء." : 
-        "You are an expert HR Consultant and professional editor. You write flawless, ATS-friendly resumes.";
+        "أنت مستشار توظيف خبير ومدقق لغوي صارم (HR & Proofreader Consultant). تكتب سير ذاتية بليغة خالية تماماً من الأخطاء وتطابق أنظمة الـ ATS بشكل استراتيجي." : 
+        "You are an expert HR Consultant and professional editor. You write flawless, ATS-friendly resumes aligned perfectly with specific job requirements.";
 
     try {
         const aiResult = await askAI(promptMessage, systemMessage);
@@ -530,7 +611,6 @@ document.getElementById('coverLetterBtn').addEventListener('click', async () => 
 
     const loading = document.getElementById('loading');
     const resultBox = document.getElementById('resultBox');
-    
     btn.disabled = true;
     loading.classList.remove('hidden');
 
@@ -565,13 +645,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
     
-    // عرض النصيحة العشوائية فوراً بمجرد فتح التطبيق ودخول المستخدم
+    // تشغيل الميزات الجديدة تلقائياً عند تحميل واجهة التطبيق
     displayRandomLiveTip();
-    
-    // تشغيل الجولة الترحيبية للمستخدم الجديد فوراً
     initAppTour();
-    
     initCVScoreGauge();
+    initInlineAIWriters();
+    initJobDescriptionMatcher();
+    initAIInterviewPrep();
     initThemeColorPicker();
     
     const dropBtn = document.getElementById('dropdownToggleBtn');
