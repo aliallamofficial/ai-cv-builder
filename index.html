@@ -170,7 +170,7 @@
                 <div class="settings-section-card">
                     <h3>🔒 سياسة الخصوصية والأمان</h3>
                     <p>نحن نحترم خصوصيتك بالكامل. كافة البيانات المدخلة لتوليد السير الذاتية تتم معالجتها لحظياً ولا يتم تخزينها على خوادمنا مطلقاً.</p>
-                    <a href="javascript:void(0)" id="privacyPolicyLink" class="settings-link">قراءة سياسة الخصوصية الكاملة ←</a>
+                    <a href="https://wp.me/Phj9fM-E" id="privacyPolicyLink" target="_blank" class="settings-link" rel="noopener noreferrer">قراءة سياسة الخصوصية الكاملة ←</a>
                 </div>
             </div>
 
@@ -197,21 +197,6 @@
         </div>
     </div>
 
-    <div id="privacyModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 10000; display: none;">
-        <div style="background: #1e293b; color: #fff; padding: 25px; border-radius: 8px; max-width: 500px; width: 90%; direction: rtl; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-            <h3 style="margin-top: 0; color: #38bdf8; border-bottom: 1px solid #334155; padding-bottom: 10px;">🔒 سياسة الخصوصية الكاملة</h3>
-            <div style="font-size: 14px; line-height: 1.6; margin: 15px 0; color: #cbd5e1; max-height: 300px; overflow-y: auto; padding-left: 5px;">
-                <p>مرحباً بك في <strong>Ali CV Builder</strong>. خصوصية بياناتك هي أولويتنا المطلقة:</p>
-                <ul>
-                    <li>جميع البيانات والخبرات المهنية التي تقوم بإدخالها تتم معالجتها وتدقيقها في متصفحك مباشرة بشكل لحظي.</li>
-                    <li>لا نقوم بحفظ أو تخزين أي معلومات شخصية، سير ذاتية، أو ملفات مرفوعة على أي خوادم خارجية (Servers).</li>
-                    <li>يستخدم التطبيق أدوات تحليلية قياسية مثل Google Analytics لتحسين تجربة استخدام المنصة فقط دون ربطها بهويتك.</li>
-                </ul>
-            </div>
-            <button id="closePrivacyModalBtn" style="width: 100%; padding: 10px; background: #334155; border: 1px solid #475569; color: #fff; border-radius: 6px; cursor: pointer; font-weight: bold;">إغلاق النافذة</button>
-        </div>
-    </div>
-
     <div id="appTourModal" class="tour-backdrop hidden">
         <div class="tour-card">
             <div class="tour-header">
@@ -233,47 +218,29 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // كود تشغيل زر تفعيل الإشعارات
             const notifyBtn = document.getElementById("enableNotificationsBtn");
             if (notifyBtn) {
-                notifyBtn.addEventListener("click", function() {
+                notifyBtn.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
                     if (!("Notification" in window)) {
-                        alert("متصفحك الحالي لا يدعم ميزة إشعارات دفع الويب.");
+                        alert("تنبيه: متصفحك الحالي أو بيئة العمل المحلية لا تدعم طلب إشعارات دفع الويب.");
                         return;
                     }
-                    
+
+                    // طلب الإذن المباشر من المتصفح
                     Notification.requestPermission().then(function(permission) {
                         if (permission === "granted") {
                             alert("🔔 ممتاز! تم تفعيل نظام التنبيهات بنجاح، ستصلك التحديثات فور صدورها.");
                             notifyBtn.innerText = "✓ تم تفعيل الإشعارات";
                             notifyBtn.style.background = "#10b981";
                         } else if (permission === "denied") {
-                            alert("تم رفض طلب الإشعارات. يمكنك تفعيلها يدوياً من إعدادات قفل عنوان المتصفح.");
+                            alert("لقد قمت برفض الإشعارات مسبقاً. يمكنك إعادة تفعيلها عبر الضغط على أيقونة القفل بجانب رابط الموقع في شريط المتصفح.");
                         }
+                    }).catch(function(err) {
+                        console.error("خطأ أثناء تفعيل الإشعارات:", err);
                     });
-                });
-            }
-
-            // كود إظهار وإخلاق نافذة سياسة الخصوصية المنبثقة
-            const privacyLink = document.getElementById("privacyPolicyLink");
-            const privacyModal = document.getElementById("privacyModal");
-            const closePrivacyBtn = document.getElementById("closePrivacyModalBtn");
-
-            if (privacyLink && privacyModal && closePrivacyBtn) {
-                privacyLink.addEventListener("click", function(e) {
-                    e.preventDefault();
-                    privacyModal.style.display = "flex";
-                });
-
-                closePrivacyBtn.addEventListener("click", function() {
-                    privacyModal.style.display = "none";
-                });
-
-                // إغلاق النافذة عند الضغط خارجها
-                privacyModal.addEventListener("click", function(e) {
-                    if (e.target === privacyModal) {
-                        privacyModal.style.display = "none";
-                    }
                 });
             }
         });
