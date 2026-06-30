@@ -151,6 +151,59 @@
 
     </div>
 
-    <script src="app.js"></script>
+    <div id="settingsPageModal" class="modal-backdrop hidden" style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+        <div class="modal-content" style="background: #1e293b; color: #fff; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; position: relative; direction: rtl;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 1.25rem;">⚙️ إعدادات التطبيق</h2>
+                <button id="closeSettingsBtn" class="close-modal-x" style="background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div id="dynamicColorPickerContainer"></div>
+
+                <div class="settings-section-card" style="background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                    <h3 style="margin-top: 0; color: #38bdf8;">🔔 نظام تنبيهات دفع الويب</h3>
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.5;">قم بتفعيل الإشعارات ليصلك إشعار فوري وتلقائي بمجرد قيامنا بتحديث خوارزميات أو ميزات التطبيق.</p>
+                    <button id="enableNotificationsBtn" class="action-settings-btn" style="background: #2563eb; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;">تفعيل الإشعارات الآن</button>
+                </div>
+
+                <div class="settings-section-card" style="background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                    <h3 style="margin-top: 0; color: #38bdf8;">🔒 سياسة الخصوصية والأمان</h3>
+                    <p style="font-size: 13px; color: #cbd5e1; line-height: 1.5;">نحن نحترم خصوصيتك بالكامل. كافة البيانات المدخلة لتوليد السير الذاتية تتم معالجتها لحظياً ولا يتم تخزينها على خوادمنا مطلقاً.</p>
+                    <a href="#" id="privacyPolicyLink" target="_blank" class="settings-link" style="color: #38bdf8; text-decoration: none; font-size: 13px;">قراءة سياسة الخصوصية الكاملة ←</a>
+                </div>
+            </div>
+
+            <div class="modal-footer" style="padding-top: 15px; border-top: 1px solid #334155; text-align: center;">
+                <p style="margin: 0 0 10px 0; font-size: 13px; color: #cbd5e1;">
+                    تم التطوير بكل فخر بواسطة <strong style="color: #38bdf8;">علي حاتم علام</strong> © 2026
+                </p>
+                <div style="display: flex; justify-content: center; gap: 10px; font-size: 12px;">
+                    <a href="https://github.com/aliallamofficial" target="_blank" style="color: #fff; text-decoration: none;">GitHub</a>
+                    <span style="color: #475569;">|</span>
+                    <a href="https://linkedin.com/in/aliallamofficial" target="_blank" style="color: #38bdf8; text-decoration: none;">LinkedIn</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="appTourModal" class="tour-backdrop hidden">
+        <div class="tour-card">
+            <div class="tour-header">
+                <span id="tourProgress" class="tour-step-badge">خطوة 1 من 3</span>
+                <button id="skipTourBtn" class="tour-skip-link">تخطي الجولة</button>
+            </div>
+            <div class="tour-body">
+                <div id="tourIcon" class="tour-main-icon">🚀</div>
+                <h2 id="tourTitle" class="tour-main-title">مرحباً بك في مستقبلك المهني!</h2>
+                <p id="tourDescription" class="tour-main-desc">دعنا نأخذك في جولة سريعة مدتها دقيقة واحدة للتعرف على كيفية صناعة سيرة ذاتية لا تقهر بالذكاء الاصطناعي.</p>
+            </div>
+            <div class="tour-footer">
+                <button id="nextTourBtn" class="tour-next-btn">ابدأ الرحلة الآن ←</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js" defer></script>
 </body>
 </html>
