@@ -9,6 +9,15 @@ const cvTips = [
     "الكلمات المفتاحية المأخوذة من إعلان الوظيفة نفسه هي مفتاحك السحري لتخطي فلترة الـ ATS."
 ];
 
+// دالة مخصصة لعرض نصيحة عشوائية عند فتح التطبيق
+function displayRandomLiveTip() {
+    const tipTextElement = document.getElementById('liveTipText');
+    if (tipTextElement) {
+        const randomIndex = Math.floor(Math.random() * cvTips.length);
+        tipTextElement.innerText = cvTips[randomIndex];
+    }
+}
+
 // ==========================================
 // 🔥 ميزة 1: عداد قياس قوة وجاهزية الـ CV لنظام الـ ATS
 // ==========================================
@@ -188,7 +197,6 @@ async function askAI(promptMessage, systemMessage, retries = 3) {
 function formatMarkdown(text) {
     if (!text) return '';
 
-    // تصفية وحذف الجمل والروابط التي يضيفها السيرفر المجاني تلقائياً في النهاية
     let cleanedText = text
         .replace(/Powered by Pollinations\.AI.*/gi, '')
         .replace(/.*Support our mission.*/gi, '')
@@ -196,7 +204,6 @@ function formatMarkdown(text) {
         .replace(/🌸\s*Ad\s*🌸/gi, '')
         .replace(/Pollinations\.AI:/gi, '');
 
-    // تطبيق وسوم HTML المعتادة على النص النظيف
     return cleanedText
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
         .replace(/\*(.*?)\*/g, '<em>$1</em>')          
@@ -256,7 +263,7 @@ function generateCVQRCode(containerId, textToEncode) {
 }
 
 // ==========================================
-// 📄 🔥 ميزة 3: التنزيل المباشر الفوري كملف PDF (منع قاطع لصفحة الطباعة)
+// 📄 🔥 ميزة 3: التنزيل المباشر الفوري كملف PDF
 // ==========================================
 document.getElementById('downloadPdfBtn').addEventListener('click', (e) => {
     e.preventDefault();
@@ -479,6 +486,9 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => splash.remove(), 500);
         }, 1000);
     }
+    
+    // عرض النصيحة العشوائية فوراً بمجرد فتح التطبيق ودخول المستخدم
+    displayRandomLiveTip();
     
     initCVScoreGauge();
     initThemeColorPicker();
