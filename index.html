@@ -22,12 +22,18 @@
 
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 <body>
 
     <div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s ease; color: #fff; font-family: sans-serif;">
         <h1 style="font-size: 2.5rem; margin-bottom: 10px; color: #38bdf8; animation: pulse 1.5s infinite;">Ali CV Builder</h1>
-        <p style="color: #64748b; font-size: 1rem;">جاري تهيئة مستشار التوظيف الذكي...</p>
+        <p style="color: #64748b; font-size: 1rem; margin-bottom: 25px;">جاري تهيئة مستشار التوظيف الذكي...</p>
+        
+        <div style="background: rgba(30, 41, 59, 0.5); padding: 15px; border-radius: 8px; border: 1px solid #334155;">
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAAA9mH_K-oMv4m7t3"></div>
+        </div>
     </div>
 
     <div class="container" style="position: relative;">
@@ -263,7 +269,7 @@
             const tipTextElement = document.getElementById("liveTipText");
             if (tipTextElement && tipTextElement.innerText.includes("جاري جلب")) {
                 const tips = [
-                    "احرص على استخدام أفعال قوية في وصف خبراتك مثل (طوّرت، أدرت، حققت) بدلاً من الكلمات التقليدية.",
+                    "احرص على استخدام أفعال قوية في وصف خبراتك مثل (طوّرت, أدرت, حققت) بدلاً من الكلمات التقليدية.",
                     "تجنب وضع صورتك الشخصية أو الرسوم البيانية المعقدة إذا كنت تستهدف شركات عالمية تستخدم نظام الـ ATS.",
                     "اجعل الكلمات المفتاحية الموجودة في إعلان الوظيفة جزءاً أساسياً من قسم المهارات والخبرات لديك.",
                     "صياغة سيرة ذاتية من صفحة واحدة كافية جداً إذا كانت خبرتك المهنية أقل من 5 سنوات.",
