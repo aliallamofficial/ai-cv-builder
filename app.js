@@ -44,7 +44,7 @@ const tourSteps = [
     {
         icon: "📊",
         title: "مستشار الـ ATS الذكي لحظة بلحظة",
-        desc: "أثناء كتابة بياناتك، سيقوم العداد الذكي بتقييم قوة مستندك وإعطائك نصائح حية لتخطي أنظمة الفلترة العالمية بنجاح.",
+        desc: "أثنائ كتابة بياناتك، سيقوم العداد الذكي بتقييم قوة مستندك وإعطائك نصائح حية لتخطي أنظمة الفلترة العالمية بنجاح.",
         btnText: "التالي مذهل كالعادة ←"
     },
     {
@@ -372,7 +372,7 @@ function generateCVQRCode(containerId, textToEncode) {
 }
 
 // ==========================================
-// 📄 ميزة: التنزيل المباشر المطور PDF
+// 📄 ميزة: التنزيل المباشر المطور PDF (مع مهلة زمنية لمنع الصفحة البيضاء)
 // ==========================================
 document.getElementById('downloadPdfBtn').addEventListener('click', (e) => {
     e.preventDefault();
@@ -390,7 +390,7 @@ document.getElementById('downloadPdfBtn').addEventListener('click', (e) => {
 
     const fullName = document.getElementById('fullName').value.trim() || "CV";
     const originalBtnText = document.getElementById('downloadPdfBtn').innerText;
-    document.getElementById('downloadPdfBtn').innerText = "⏳ جاري التنزيل المباشر...";
+    document.getElementById('downloadPdfBtn').innerText = "⏳ جاري التجهيز والتنزيل...";
 
     const executeDirectDownload = () => {
         const options = {
@@ -401,13 +401,16 @@ document.getElementById('downloadPdfBtn').addEventListener('click', (e) => {
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        html2pdf().set(options).from(cvElement).save().then(() => {
-            document.getElementById('downloadPdfBtn').innerText = originalBtnText;
-            document.getElementById('downloadOptions').classList.add('hidden');
-        }).catch((err) => {
-            console.error(err);
-            document.getElementById('downloadPdfBtn').innerText = originalBtnText;
-        });
+        // إضافة مهلة زمنية 500 ملي ثانية لضمان رندرة الـ DOM والـ CSS بالكامل
+        setTimeout(() => {
+            html2pdf().set(options).from(cvElement).save().then(() => {
+                document.getElementById('downloadPdfBtn').innerText = originalBtnText;
+                document.getElementById('downloadOptions').classList.add('hidden');
+            }).catch((err) => {
+                console.error(err);
+                document.getElementById('downloadPdfBtn').innerText = originalBtnText;
+            });
+        }, 500);
     };
 
     if (typeof html2pdf === 'undefined') {
